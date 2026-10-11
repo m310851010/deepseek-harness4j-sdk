@@ -1,0 +1,3 @@
+# Windows 批处理脚本必须保持 CRLF 换行符,否则 cmd 解析会出错
+*.bat text eol=crlf
+*.cmd text eol=crlf

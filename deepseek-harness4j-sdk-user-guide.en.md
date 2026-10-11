@@ -90,9 +90,9 @@ mvn test               # Run tests (all reactor modules, 116 cases)
 
 ```xml
 <dependency>
-    <groupId>com.deepseek-ai</groupId>
+    <groupId>io.github.m310851010</groupId>
     <artifactId>deepseek-harness4j-sdk-core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 </dependency>
 ```
 
@@ -449,7 +449,7 @@ export DEEPSEEK_API_KEY=sk-xxx
 # export DSH_MODEL=your-custom-model-id
 
 # 4) Call from Java code:
-#    - Add the Maven dependency com.deepseek-ai:deepseek-harness4j-sdk-core
+#    - Add the Maven dependency io.github.m310851010:deepseek-harness4j-sdk-core
 #    - new DeepSeekHarness(config).run("your task description")
 ```
 
@@ -578,7 +578,7 @@ pnpm dsh --profile headless "List all files in this repo and count lines of Type
 ### 9.1 Minimal three steps
 
 ```sh
-# 1) Add the dependency (see deepseek-harness4j-sdk/sdk README): Maven coordinate com.deepseek-ai:deepseek-harness4j-sdk-core
+# 1) Add the dependency (see deepseek-harness4j-sdk/sdk README): Maven coordinate io.github.m310851010:deepseek-harness4j-sdk-core
 # 2) Set credentials
 export DEEPSEEK_API_KEY=sk-your-key
 # 3) Use it
@@ -1115,7 +1115,7 @@ uv pip install --python /tmp/dshuv/bin/python deepseek-harness4j-sdk
 # Result: installed deepseek-harness4j-sdk==0.1.0rc6 + the matching runtime binary (~50MB)
 ```
 
-Java side: add the `com.deepseek-ai:deepseek-harness4j-sdk-core` dependency and install the runtime carrier (`mvn install`, see `development.en.md`).
+Java side: add the `io.github.m310851010:deepseek-harness4j-sdk-core` dependency and install the runtime carrier (`mvn install`, see `development.en.md`).
 
 ### 15.2 First Call (plain chat)
 
@@ -1364,7 +1364,7 @@ scripts/     Repo gates and generators
 - **License**: MIT (root `LICENSE`).
 - Third-party dependency & license disclosure: `THIRD_PARTY_NOTICES.md`.
 - npm package namespace: `@deepseek-ai/dsh-*`; CLI package `@deepseek-ai/dsh` (bin: `dsh`).
-- Java package coordinates: `com.deepseek-ai:deepseek-harness4j-sdk-*` (deepseek-harness4j-sdk repository).
+- Java package coordinates: `io.github.m310851010:deepseek-harness4j-sdk-*` (deepseek-harness4j-sdk repository).
 - The underlying Cordis is source-pinned per the vendoring policy (vendor/README.md has the upstream SHA and sync process).
 
 ### 17.8 Community & Support

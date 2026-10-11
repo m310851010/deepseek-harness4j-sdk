@@ -52,9 +52,9 @@
 
 ```xml
 <dependency>
-    <groupId>com.deepseek-ai</groupId>
+    <groupId>io.github.m310851010</groupId>
     <artifactId>deepseek-harness4j-sdk-core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 </dependency>
 ```
 
@@ -62,9 +62,9 @@
 
 ```xml
 <dependency>
-    <groupId>com.deepseek-ai</groupId>
+    <groupId>io.github.m310851010</groupId>
     <artifactId>deepseek-harness4j-sdk-spring-boot-starter</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 </dependency>
 ```
 

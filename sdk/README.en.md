@@ -10,16 +10,16 @@ Add the `deepseek-harness4j-sdk-core` dependency from Maven Central (Java 8+):
 
 ```xml
 <dependency>
-  <groupId>com.deepseek-ai</groupId>
+  <groupId>io.github.m310851010</groupId>
   <artifactId>deepseek-harness4j-sdk-core</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
 </dependency>
 ```
 
 or Gradle:
 
 ```groovy
-implementation 'com.deepseek-ai:deepseek-harness4j-sdk-core:0.0.1-SNAPSHOT'
+implementation 'io.github.m310851010:deepseek-harness4j-sdk-core:0.0.1'
 ```
 
 Before first use, install an available runtime carrier (see the [sdk-runtime README](../sdk-runtime/README.en.md)): the production single-file `dsh-jsonrpc-agent` executable, or the dev-only `node` closure; you can also select an explicit channel via `HarnessConfig.runtimeBin` / `launchArgsOverride`. The normal entry point therefore needs no executable argument:

@@ -20,16 +20,16 @@
 
 ```xml
 <dependency>
-  <groupId>com.deepseek-ai</groupId>
+  <groupId>io.github.m310851010</groupId>
   <artifactId>deepseek-harness4j-sdk-core</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
 </dependency>
 ```
 
 或 Gradle：
 
 ```groovy
-implementation 'com.deepseek-ai:deepseek-harness4j-sdk-core:0.0.1-SNAPSHOT'
+implementation 'io.github.m310851010:deepseek-harness4j-sdk-core:0.0.1'
 ```
 
 ### 从源码构建

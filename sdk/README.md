@@ -10,16 +10,16 @@
 
 ```xml
 <dependency>
-  <groupId>com.deepseek-ai</groupId>
+  <groupId>io.github.m310851010</groupId>
   <artifactId>deepseek-harness4j-sdk-core</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
 </dependency>
 ```
 
 或 Gradle：
 
 ```groovy
-implementation 'com.deepseek-ai:deepseek-harness4j-sdk-core:0.0.1-SNAPSHOT'
+implementation 'io.github.m310851010:deepseek-harness4j-sdk-core:0.0.1'
 ```
 
 使用前请先为运行时安装一个可用载体（见 [sdk-runtime README](../sdk-runtime/README.md)）：生产环境的单文件 `dsh-jsonrpc-agent` 可执行程序，或开发模式的 `node` 闭包；也可以通过 `HarnessConfig.runtimeBin` / `launchArgsOverride` 显式指定通道。常规入口因此不需要传可执行文件参数：

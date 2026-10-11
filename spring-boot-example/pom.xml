@@ -10,9 +10,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.deepseek-ai</groupId>
+    <groupId>io.github.m310851010</groupId>
     <artifactId>deepseek-harness4j-sdk</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
   </parent>
 
   <artifactId>deepseek-harness4j-sdk-spring-boot-example</artifactId>
@@ -33,7 +33,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.deepseek-ai</groupId>
+      <groupId>io.github.m310851010</groupId>
       <artifactId>deepseek-harness4j-sdk-spring-boot-starter</artifactId>
       <version>${project.version}</version>
     </dependency>

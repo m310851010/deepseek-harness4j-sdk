@@ -90,9 +90,9 @@ mvn test               # 运行测试（全 reactor 116 个用例）
 
 ```xml
 <dependency>
-    <groupId>com.deepseek-ai</groupId>
+    <groupId>io.github.m310851010</groupId>
     <artifactId>deepseek-harness4j-sdk-core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 </dependency>
 ```
 
@@ -449,7 +449,7 @@ export DEEPSEEK_API_KEY=sk-xxx
 # export DSH_MODEL=your-custom-model-id
 
 # 4) 在 Java 代码里调用：
-#    - 添加 Maven 依赖 com.deepseek-ai:deepseek-harness4j-sdk-core
+#    - 添加 Maven 依赖 io.github.m310851010:deepseek-harness4j-sdk-core
 #    - new DeepSeekHarness(config).run("你的任务描述")
 ```
 
@@ -578,7 +578,7 @@ pnpm dsh --profile headless "List all files in this repo and count lines of Type
 ### 9.1 最小三步
 
 ```sh
-# 1) 引入依赖(见 deepseek-harness4j-sdk/sdk README):Maven 坐标 com.deepseek-ai:deepseek-harness4j-sdk-core
+# 1) 引入依赖(见 deepseek-harness4j-sdk/sdk README):Maven 坐标 io.github.m310851010:deepseek-harness4j-sdk-core
 # 2) 设凭据
 export DEEPSEEK_API_KEY=sk-你的密钥
 # 3) 用
@@ -1115,7 +1115,7 @@ uv pip install --python /tmp/dshuv/bin/python deepseek-harness4j-sdk
 # 结果:安装 deepseek-harness4j-sdk==0.1.0rc6 + 同版本运行时二进制(约 50MB)
 ```
 
-Java 侧:引入 `com.deepseek-ai:deepseek-harness4j-sdk-core` 依赖并安装运行时载体(`mvn install`,见 `development.md`)。
+Java 侧:引入 `io.github.m310851010:deepseek-harness4j-sdk-core` 依赖并安装运行时载体(`mvn install`,见 `development.md`)。
 
 ### 15.2 第一次调用(纯对话)
 
@@ -1364,7 +1364,7 @@ scripts/     仓库门禁与生成器
 - **License**:MIT(根 `LICENSE`)。
 - 第三方依赖及其许可证披露:`THIRD_PARTY_NOTICES.md`。
 - npm 包命名空间:`@deepseek-ai/dsh-*`;CLI 包 `@deepseek-ai/dsh`(bin: `dsh`)。
-- Java 包坐标:`com.deepseek-ai:deepseek-harness4j-sdk-*`(deepseek-harness4j-sdk 仓库)。
+- Java 包坐标:`io.github.m310851010:deepseek-harness4j-sdk-*`(deepseek-harness4j-sdk 仓库)。
 - 底层 Cordis 按 vendoring 政策做源码固定(vendor/README.md 有上游 SHA 与同步流程)。
 
 ### 17.8 社区与支持
