@@ -3,6 +3,8 @@ package com.deepseek.harness4j;
 import com.deepseek.harness4j.client.NotificationSubscription;
 import com.deepseek.harness4j.model.JsonValues;
 import com.deepseek.harness4j.model.Notification;
+import com.deepseek.harness4j.util.flow.Publisher;
+import com.deepseek.harness4j.util.flow.SubmissionPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,28 @@ import java.util.function.Consumer;
  * @param harness the owning high-level harness
  * @param id      the durable session id
  */
-public record Session(DeepSeekHarness harness, String id) {
+public final class Session {
+
+    private final DeepSeekHarness harness;
+    private final String id;
+
+    /**
+     * Creates a session bound to a running {@link DeepSeekHarness}.
+     */
+    public Session(DeepSeekHarness harness, String id) {
+        this.harness = harness;
+        this.id = id;
+    }
+
+    /** The owning high-level harness. */
+    public DeepSeekHarness harness() {
+        return harness;
+    }
+
+    /** The durable session id. */
+    public String id() {
+        return id;
+    }
 
     /**
      * Run one turn interval: from the prompt's durable inbox receipt through the next
@@ -145,12 +168,12 @@ public record Session(DeepSeekHarness harness, String id) {
     }
 
     /**
-     * Return a reactive {@link java.util.concurrent.Flow.Publisher} emitting real-time
+     * Return a reactive {@link com.deepseek.harness4j.util.flow.Publisher} emitting real-time
      * {@link com.deepseek.harness4j.model.StreamChunk} items for this turn.
      */
-    public java.util.concurrent.Flow.Publisher<com.deepseek.harness4j.model.StreamChunk> stream(Object input) {
-        java.util.concurrent.SubmissionPublisher<com.deepseek.harness4j.model.StreamChunk> publisher =
-                new java.util.concurrent.SubmissionPublisher<>();
+    public Publisher<com.deepseek.harness4j.model.StreamChunk> stream(Object input) {
+        SubmissionPublisher<com.deepseek.harness4j.model.StreamChunk> publisher =
+                new SubmissionPublisher<>();
         CompletableFuture.runAsync(() -> {
             try {
                 stream(input, chunk -> {

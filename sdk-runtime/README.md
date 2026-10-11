@@ -2,7 +2,7 @@
 
 [English](README.en.md) | 中文
 
-DeepSeek Harness Java SDK 的运行时载体模块：`RuntimeResolver`（`com.deepseek.harness4j.runtime`，对应上游 Python 包 `deepseek_harness_runtime`）定位 `deepseek-harness4j-sdk` 客户端要 spawn 的内置运行时二进制，并附带支撑零配置运行的默认配置。
+DeepSeek Harness Java SDK 的运行时载体模块：`RuntimeResolver`（`com.deepseek.harness4j.runtime`，对应上游 Python 包 `deepseek_harness_runtime`）定位 `deepseek-harness4j-sdk-core` 客户端要 spawn 的内置运行时二进制，并附带支撑零配置运行的默认配置。
 
 ## 运行时载体
 
@@ -11,7 +11,7 @@ DeepSeek Harness Java SDK 的运行时载体模块：`RuntimeResolver`（`com.de
 - **exe（生产）**——单文件 Node 可执行程序 `dsh-jsonrpc-agent-pkg-<platform>-<arch>`（platform：`linux`/`macos`；arch：`x64`/`arm64`）。macOS 构建还会随附 `node-pty` 在该平台使用的原生 `-spawn-helper` 伴随文件。目标机器无需安装 Node。这是分发物中唯一随包提供的载体。
 - **node（仅限开发）**——`runtime/node/` 下的完整部署闭包（`package.json` + `node_modules/`），在系统 Node >= 22.19 上以 `node runtime/node/node_modules/@deepseek-ai/dsh-sdk-jsonrpc-demo/lib/packaged-bin.js` 执行。它是当前检出的源码构建，仅用于仓库本地的开发与验证；不会被自动选中，也不进入分发物。
 
-Java 移植中，`deepseek-harness4j-sdk` 直接随包携带 `deepseek-harness-runtime.json` 元数据与 `runtime/cordis.yml` 默认配置（作为 classpath 资源）；`RuntimeResolver.bundledPackageDir()` 的解析顺序是：显式运行时目录（系统属性 `dsh4j.runtime.dir` 或环境变量 `DSH4J_RUNTIME_DIR`）> 元数据 classpath 资源所在目录。资源在 jar 内部时，默认 `cordis.yml` 会被物化到缓存的临时文件，以便按路径交给子进程。
+Java 移植中，`deepseek-harness4j-sdk-core` 直接随包携带 `deepseek-harness-runtime.json` 元数据与 `runtime/cordis.yml` 默认配置（作为 classpath 资源）；`RuntimeResolver.bundledPackageDir()` 的解析顺序是：显式运行时目录（系统属性 `dsh4j.runtime.dir` 或环境变量 `DSH4J_RUNTIME_DIR`）> 元数据 classpath 资源所在目录。资源在 jar 内部时，默认 `cordis.yml` 会被物化到缓存的临时文件，以便按路径交给子进程。
 
 exe 缺失时抛出 `MissingRuntimeException`（对应 Python 的 `FileNotFoundError`），并写明两种获取途径：在 deepseek-harness 检出中经 `scripts/build-exe-for-python-sdk.ts` 构建，或安装匹配平台的运行时分发。仅限开发的 node 载体缺失时只提示构建脚本这一条途径。获取策略与查找接口刻意分离，之后可以换成按需下载而不改动任何调用方。
 

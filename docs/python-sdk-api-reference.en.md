@@ -2,7 +2,7 @@
 
 [中文](python-sdk-api-reference.md) | English
 
-This document condenses **100% of the upstream `deepseek-harness` Python SDK's capabilities** into an implementable public spec: the SDK public API, the JSON-RPC wire protocol (methods/notifications/events/result semantics), environment variables, lifecycle, and how the web / cli / sdk / acp channels relate. Any project (Java, Go, Rust, JS, …) can build a Python-SDK-equivalent client from scratch against this spec; `deepseek-harness4j`'s Java SDK follows exactly this spec (see also [port-coverage.md](port-coverage.en.md) and [java-migration-notes.md](java-migration-notes.en.md)).
+This document condenses **100% of the upstream `deepseek-harness` Python SDK's capabilities** into an implementable public spec: the SDK public API, the JSON-RPC wire protocol (methods/notifications/events/result semantics), environment variables, lifecycle, and how the web / cli / sdk / acp channels relate. Any project (Java, Go, Rust, JS, …) can build a Python-SDK-equivalent client from scratch against this spec; `deepseek-harness4j-sdk`'s Java SDK follows exactly this spec (see also [port-coverage.md](port-coverage.en.md) and [java-migration-notes.md](java-migration-notes.en.md)).
 
 ## 1. One-line model
 
@@ -50,7 +50,7 @@ This document condenses **100% of the upstream `deepseek-harness` Python SDK's c
   "model": "deepseek-v4-flash",
   "maxTokens": 49152            // optional
 }}
-// → result: {"serverInfo": {"name": "deepseek-harness-sdk-runtime", "version": "..."}}
+// → result: {"serverInfo": {"name": "deepseek-harness4j-sdk-runtime", "version": "..."}}
 ```
 
 Semantics: handshake. On failure the SDK reaps the started subprocess before rethrowing.

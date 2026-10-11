@@ -1,10 +1,10 @@
-# deepseek-harness4j port coverage checklist
+# deepseek-harness4j-sdk port coverage checklist
 
 [中文](port-coverage.md) | English
 
 This file is the **global checklist**: every `.py` file and every `.md` file in the upstream
 `deepseek-harness` (plus related non-code files) is cross-checked against its Java counterpart
-in `deepseek-harness4j`, proving **nothing is omitted**. Method: enumerate all `.py` / `.md`
+in `deepseek-harness4j-sdk`, proving **nothing is omitted**. Method: enumerate all `.py` / `.md`
 files upstream with `find`, then verify each against this repository's files; at the
 function level, cross-check every Python class/function against its Java method.
 
@@ -71,7 +71,7 @@ examples/jsonrpc-agent/minimal.py
 | 2 | `python/development.md` / `development.zh.md` | `development.md` (Chinese) / `development.en.md` (English) | ✅ complete |
 | 3 | `python/sdk/README.md` / `README.zh.md` | `sdk/README.md` / `sdk/README.en.md` | ✅ complete |
 | 4 | `python/sdk-runtime/README.md` / `README.zh.md` | `sdk-runtime/README.md` / `sdk-runtime/README.en.md` | ✅ complete |
-| 5 | root `deepseek-harness-使用指南.md` | `deepseek-harness4j-使用指南.md` / `deepseek-harness4j-user-guide.en.md` (bilingual) | ✅ complete (sections 一–十七 all preserved) |
+| 5 | root `deepseek-harness-使用指南.md` | `deepseek-harness4j-sdk-使用指南.md` / `deepseek-harness4j-sdk-user-guide.en.md` (bilingual) | ✅ complete (sections 一–十七 all preserved) |
 | 6 | `examples/jsonrpc-agent/README.md` / `README.zh.md` | `examples/jsonrpc-agent/README.md` / `README.en.md` | ✅ complete |
 | 7 | `docs/user/guide/python-sdk.md` (official SDK tutorial) | §4 API reference here + `sdk/README.md` (tutorial content folded in) | ✅ complete (key points folded in) |
 | 8 | migration/audit additions | `docs/java-migration-notes.md` / `.en.md`, `docs/port-coverage.md` / `.en.md`, `docs/python-sdk-api-reference.md` / `.en.md` | ✅ added |
@@ -157,7 +157,7 @@ examples/jsonrpc-agent/minimal.py
 ## 7. Verification
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn clean install     # full reactor (sdk / spring-boot-starter / spring-boot-example) build + tests
 mvn -pl sdk test      # sdk unit tests (including the new RuntimeBuildHookTest)
 ```
@@ -176,5 +176,5 @@ For any project (in any language) to align with 100% of the Python SDK's capabil
    implementation spec.
 2. **[java-migration-notes.md](java-migration-notes.md)** — Python→Java differences and
    substitute semantics.
-3. `deepseek-harness4j-user-guide.en.md`, `sdk/README.en.md`, `sdk-runtime/README.en.md` — usage and
+3. `deepseek-harness4j-sdk-user-guide.en.md`, `sdk/README.en.md`, `sdk-runtime/README.en.md` — usage and
    runtime-carrier documentation.

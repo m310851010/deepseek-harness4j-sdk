@@ -36,7 +36,7 @@ public final class ReleaseVersion {
     public static String repositoryVersion(Path pom) {
         String text;
         try {
-            text = Files.readString(pom);
+            text = new String(Files.readAllBytes(pom), java.nio.charset.StandardCharsets.UTF_8);
         } catch (Exception error) {
             throw new IllegalArgumentException("could not read repository version from " + pom, error);
         }
@@ -77,12 +77,24 @@ public final class ReleaseVersion {
                     "prerelease segment '" + prerelease
                             + "' has no PEP 440 spelling; use rc.N, alpha.N, or beta.N");
         }
-        String identifier = switch (match.group(1)) {
-            case "alpha" -> "a";
-            case "beta" -> "b";
-            case "c", "pre", "preview" -> "rc";
-            default -> match.group(1);
-        };
+        String group = match.group(1);
+        String identifier;
+        switch (group) {
+            case "alpha":
+                identifier = "a";
+                break;
+            case "beta":
+                identifier = "b";
+                break;
+            case "c":
+            case "pre":
+            case "preview":
+                identifier = "rc";
+                break;
+            default:
+                identifier = group;
+                break;
+        }
         return stable + identifier + match.group(2);
     }
 

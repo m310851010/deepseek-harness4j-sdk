@@ -1,5 +1,7 @@
 package com.deepseek.harness4j;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.test.FakeRuntime;
 import com.deepseek.harness4j.test.TestRuntimes;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,7 @@ class RunResultExtractionTest {
 
     @Test
     void test_reasoning_content_extracted_from_reasoning_delta_chunks() {
-        List<Map<String, Object>> events = List.of(
+        List<Map<String, Object>> events = Jdk8.listOf(
                 chunk("reasoning-delta", "Let me think"),
                 chunk("text-delta", "answer"),
                 chunk("reasoning-delta", " about the plan"),
@@ -42,18 +44,18 @@ class RunResultExtractionTest {
 
     @Test
     void test_reasoning_content_handles_packed_reasoning_chunks_row() {
-        List<Map<String, Object>> events = List.of(
-                Map.of("type", "reasoning-chunks",
-                        "data", Map.of("texts", List.of("packed ", "reasoning"))));
+        List<Map<String, Object>> events = Jdk8.listOf(
+                Jdk8.mapOf("type", "reasoning-chunks",
+                        "data", Jdk8.mapOf("texts", Jdk8.listOf("packed ", "reasoning"))));
 
         assertEquals("packed reasoning", reasoningOf(events));
     }
 
     @Test
     void test_reasoning_content_empty_when_no_reasoning() {
-        assertEquals("", reasoningOf(List.of(
-                Map.of("type", "assistant/chunk",
-                        "data", Map.of("chunk", Map.of("type", "text-delta", "text", "hi"))))));
+        assertEquals("", reasoningOf(Jdk8.listOf(
+                Jdk8.mapOf("type", "assistant/chunk",
+                        "data", Jdk8.mapOf("chunk", Jdk8.mapOf("type", "text-delta", "text", "hi"))))));
     }
 
     // -----------------------------------------------------------------------------------
@@ -62,13 +64,13 @@ class RunResultExtractionTest {
 
     @Test
     void test_token_usage_aggregates_assistant_messages() {
-        List<Map<String, Object>> events = List.of(
-                assistantWithUsage(Map.of("inputTokens", 10, "outputTokens", 5,
+        List<Map<String, Object>> events = Jdk8.listOf(
+                assistantWithUsage(Jdk8.mapOf("inputTokens", 10, "outputTokens", 5,
                         "reasoningTokens", 2)),
-                assistantWithUsage(Map.of("inputTokens", 20, "outputTokens", 8,
+                assistantWithUsage(Jdk8.mapOf("inputTokens", 20, "outputTokens", 8,
                         "cacheReadTokens", 100)),
                 // no usage field -> ignored, not zeroed
-                Map.of("type", "assistant/message", "data", Map.of("message", Map.of())));
+                Jdk8.mapOf("type", "assistant/message", "data", Jdk8.mapOf("message", Jdk8.mapOf())));
 
         RunResult.TokenUsage usage = tokenUsageOf(events);
         assertEquals(30, usage.promptTokens());
@@ -81,8 +83,8 @@ class RunResultExtractionTest {
 
     @Test
     void test_token_usage_empty_when_no_usage_reported() {
-        RunResult.TokenUsage usage = tokenUsageOf(List.of(
-                Map.of("type", "assistant/message", "data", Map.of("message", Map.of()))));
+        RunResult.TokenUsage usage = tokenUsageOf(Jdk8.listOf(
+                Jdk8.mapOf("type", "assistant/message", "data", Jdk8.mapOf("message", Jdk8.mapOf()))));
         assertEquals(RunResult.TokenUsage.EMPTY, usage);
     }
 
@@ -92,7 +94,7 @@ class RunResultExtractionTest {
 
     @Test
     void test_tool_calls_pair_call_and_result_by_call_id() {
-        List<Map<String, Object>> events = List.of(
+        List<Map<String, Object>> events = Jdk8.listOf(
                 toolCall("call-1", "bash", "{\"command\":\"ls\"}", 1_700_000_000_000L),
                 toolCall("call-2", "str-replace-editor", "{\"old\":\"a\"}", 1_700_000_000_100L),
                 toolResult("call-1", "file list", null, 1_700_000_000_050L),
@@ -116,10 +118,10 @@ class RunResultExtractionTest {
 
     @Test
     void test_tool_calls_flag_error_results_and_unmatched_calls() {
-        List<Map<String, Object>> events = List.of(
+        List<Map<String, Object>> events = Jdk8.listOf(
                 toolCall("call-err", "bash", "{}", 1_700_000_000_000L),
                 toolCall("call-orphan", "bash", "{}", 1_700_000_000_200L),
-                toolResult("call-err", "boom", Map.of("name", "CommandFailed", "code", "E1"),
+                toolResult("call-err", "boom", Jdk8.mapOf("name", "CommandFailed", "code", "E1"),
                         1_700_000_000_050L));
 
         List<RunResult.ToolCallRecord> calls = toolCallsOf(events);
@@ -134,7 +136,7 @@ class RunResultExtractionTest {
 
     @Test
     void test_tool_calls_empty_when_no_tool_events() {
-        assertTrue(toolCallsOf(List.of()).isEmpty());
+        assertTrue(toolCallsOf(Jdk8.listOf()).isEmpty());
     }
 
     // -----------------------------------------------------------------------------------
@@ -149,7 +151,7 @@ class RunResultExtractionTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "minimal-turn"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "minimal-turn"))
                 .build())) {
             result = harness.run("one turn", "main", null);
         }
@@ -165,19 +167,19 @@ class RunResultExtractionTest {
     // -----------------------------------------------------------------------------------
 
     private static Map<String, Object> chunk(String deltaType, String text) {
-        return Map.of("type", "assistant/chunk",
-                "data", Map.of("chunk", Map.of("type", deltaType, "text", text)));
+        return Jdk8.mapOf("type", "assistant/chunk",
+                "data", Jdk8.mapOf("chunk", Jdk8.mapOf("type", deltaType, "text", text)));
     }
 
     private static Map<String, Object> assistantWithUsage(Map<String, Object> usage) {
-        return Map.of("type", "assistant/message",
-                "data", Map.of("message", Map.of("content", List.of()), "usage", usage));
+        return Jdk8.mapOf("type", "assistant/message",
+                "data", Jdk8.mapOf("message", Jdk8.mapOf("content", Jdk8.listOf()), "usage", usage));
     }
 
     private static Map<String, Object> toolCall(String callId, String name, String args,
                                                 long time) {
-        return Map.of("type", "tool/call", "time", time,
-                "data", Map.of("callId", callId, "name", name, "arguments", args));
+        return Jdk8.mapOf("type", "tool/call", "time", time,
+                "data", Jdk8.mapOf("callId", callId, "name", name, "arguments", args));
     }
 
     private static Map<String, Object> toolResult(String callId, String message,
@@ -188,7 +190,7 @@ class RunResultExtractionTest {
         if (error != null) {
             data.put("error", error);
         }
-        return Map.of("type", "tool/result", "time", time, "data", data);
+        return Jdk8.mapOf("type", "tool/result", "time", time, "data", data);
     }
 
     private static String reasoningOf(List<Map<String, Object>> events) {

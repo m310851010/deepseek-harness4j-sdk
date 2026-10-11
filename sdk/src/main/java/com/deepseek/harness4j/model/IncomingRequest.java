@@ -18,12 +18,58 @@ import java.util.Objects;
  * <p>The {@code id} is a JSON-RPC request id: a string or an integer, hence
  * {@link Object}. Use {@link #idAsString()} to normalize for map lookups.
  */
-public record IncomingRequest(Object id, String method, Map<String, Object> payload) {
+public final class IncomingRequest {
 
-    public IncomingRequest {
+    private final Object id;
+    private final String method;
+    private final Map<String, Object> payload;
+
+    public IncomingRequest(Object id, String method, Map<String, Object> payload) {
         Objects.requireNonNull(id, "id");
         Objects.requireNonNull(method, "method");
         Objects.requireNonNull(payload, "payload");
+        this.id = id;
+        this.method = method;
+        this.payload = payload;
+    }
+
+    /** The JSON-RPC request id (string or integer). */
+    public Object id() {
+        return id;
+    }
+
+    /** The request method name. */
+    public String method() {
+        return method;
+    }
+
+    /** The request payload. */
+    public Map<String, Object> payload() {
+        return payload;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof IncomingRequest)) {
+            return false;
+        }
+        IncomingRequest that = (IncomingRequest) o;
+        return Objects.equals(id, that.id)
+                && Objects.equals(method, that.method)
+                && Objects.equals(payload, that.payload);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, method, payload);
+    }
+
+    @Override
+    public String toString() {
+        return "IncomingRequest[id=" + id + ", method=" + method + ", payload=" + payload + ']';
     }
 
     /**

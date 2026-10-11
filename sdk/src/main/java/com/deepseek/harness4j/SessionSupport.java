@@ -1,5 +1,7 @@
 package com.deepseek.harness4j;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.error.SdkProtocolException;
 import com.deepseek.harness4j.model.JsonValues;
 import com.deepseek.harness4j.model.Notification;
@@ -54,11 +56,12 @@ final class SessionSupport {
      * through unchanged.
      */
     static List<Map<String, Object>> normalizeInput(Object input) {
-        if (input instanceof String text) {
+        if (input instanceof String) {
+            String text = (String) input;
             Map<String, Object> block = new java.util.LinkedHashMap<>();
             block.put("type", "text");
             block.put("text", text);
-            return List.of(block);
+            return Jdk8.listOf(block);
         }
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> blocks = (List<Map<String, Object>>) input;
@@ -246,7 +249,9 @@ final class SessionSupport {
             records.add(new RunResult.ToolCallRecord(
                     callId,
                     String.valueOf(callData.get("name")),
-                    callData.get("arguments") instanceof String s ? s : String.valueOf(callData.get("arguments")),
+                    callData.get("arguments") instanceof String
+                            ? (String) callData.get("arguments")
+                            : String.valueOf(callData.get("arguments")),
                     resultValue,
                     isError,
                     duration));
@@ -260,7 +265,7 @@ final class SessionSupport {
     static List<com.deepseek.harness4j.model.StreamChunk> extractStreamChunks(
             Notification notification, String sessionId) {
         if (notification == null) {
-            return List.of();
+            return Jdk8.listOf();
         }
         List<com.deepseek.harness4j.model.StreamChunk> chunks = new ArrayList<>();
         if ("session.event".equals(notification.method())) {
@@ -329,10 +334,10 @@ final class SessionSupport {
     }
 
     private static long asLong(Object value) {
-        return value instanceof Number number ? number.longValue() : 0L;
+        return value instanceof Number ? ((Number) value).longValue() : 0L;
     }
 
     private static Long longValue(Object value) {
-        return value instanceof Number number ? number.longValue() : null;
+        return value instanceof Number ? ((Number) value).longValue() : null;
     }
 }

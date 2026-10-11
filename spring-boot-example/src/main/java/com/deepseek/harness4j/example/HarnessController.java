@@ -33,6 +33,22 @@ public class HarnessController {
     }
 
     /** Request body mirroring the Python {@code harness.run(input, session_id=...)} call. */
-    public record RunRequest(String input, String sessionId) {
+    public static final class RunRequest {
+
+        private final String input;
+        private final String sessionId;
+
+        public RunRequest(String input, String sessionId) {
+            this.input = input;
+            this.sessionId = sessionId;
+        }
+
+        public String input() {
+            return input;
+        }
+
+        public String sessionId() {
+            return sessionId;
+        }
     }
 }

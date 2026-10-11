@@ -1,5 +1,9 @@
 package com.deepseek.harness4j;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+
 import com.deepseek.harness4j.error.SdkProtocolException;
 import com.deepseek.harness4j.model.Notification;
 import com.deepseek.harness4j.test.FakeRuntime;
@@ -36,16 +40,16 @@ class HighLevelApiTest {
     @Test
     void test_relative_cwd_is_absolute_in_process_environment_and_wire() throws Exception {
         Path capture = tmp.resolve("cwd.json");
-        // Modern JDKs resolve Path.of(".") against the OS working directory, not user.dir, so
+        // Modern JDKs resolve Paths.get(".") against the OS working directory, not user.dir, so
         // pass a genuinely relative path from the process cwd to the temp workspace.
-        Path cwdAbsolute = Path.of("").toAbsolutePath().normalize();
+        Path cwdAbsolute = Paths.get("").toAbsolutePath().normalize();
         String relativeCwd = cwdAbsolute.relativize(tmp.toRealPath()).toString();
 
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .cwd(relativeCwd)
                 .runtimeCwd(relativeCwd)
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
-                .env(Map.of("FR_SCENARIO", "capture-cwd", "CAPTURE", capture.toString()))
+                .env(Jdk8.mapOf("FR_SCENARIO", "capture-cwd", "CAPTURE", capture.toString()))
                 .build())) {
             // Python's context manager starts the harness on entry; Java try-with-resources
             // only closes, so the start (and the initialize handshake) must be explicit.
@@ -107,14 +111,14 @@ class HighLevelApiTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "callback-subagent"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "callback-subagent"))
                 .build())) {
             Session session = harness.startSession("main");
             result = session.run("spawn a helper",
                     notification -> seen.add(notification.method()));
         }
 
-        assertEquals(List.of("session.event", "session.status", "subagent.started", "session.status"), seen);
+        assertEquals(Jdk8.listOf("session.event", "session.status", "subagent.started", "session.status"), seen);
         assertNull(result.finishReason());
     }
 
@@ -123,7 +127,7 @@ class HighLevelApiTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "malformed-turn-end"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "malformed-turn-end"))
                 .build())) {
             SdkProtocolException exc = assertThrows(SdkProtocolException.class,
                     () -> harness.run("reject malformed turn ending", "main", null));
@@ -138,13 +142,13 @@ class HighLevelApiTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "subagent-finished"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "subagent-finished"))
                 .build())) {
             result = harness.run("spawn a helper", "main", null);
         }
 
-        List<String> methods = result.notifications().stream().map(Notification::method).toList();
-        assertEquals(List.of(
+        List<String> methods = result.notifications().stream().map(Notification::method).collect(Collectors.toList());
+        assertEquals(Jdk8.listOf(
                 "session.event",
                 "session.status",
                 "subagent.started",
@@ -159,7 +163,7 @@ class HighLevelApiTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "nested-tree"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "nested-tree"))
                 .build())) {
             result = harness.run("delegate recursively", "main",
                     notification -> seen.add(notification.method()));
@@ -175,9 +179,9 @@ class HighLevelApiTest {
                 assistantTexts.add(String.valueOf(content.get(0).get("text")));
             }
         }
-        assertEquals(List.of("root response"), assistantTexts);
-        List<String> methods = result.notifications().stream().map(Notification::method).toList();
-        assertEquals(List.of(
+        assertEquals(Jdk8.listOf("root response"), assistantTexts);
+        List<String> methods = result.notifications().stream().map(Notification::method).collect(Collectors.toList());
+        assertEquals(Jdk8.listOf(
                 "session.event",
                 "session.status",
                 "subagent.started",
@@ -197,14 +201,14 @@ class HighLevelApiTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "other-session"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "other-session"))
                 .build())) {
             result = harness.run("stay in your lane", "main", null);
         }
 
         assertEquals("right session", result.finalResponse());
-        assertEquals(List.of("main", "main", "main", "main"),
-                result.notifications().stream().map(n -> n.payload().get("sessionId")).toList());
+        assertEquals(Jdk8.listOf("main", "main", "main", "main"),
+                result.notifications().stream().map(n -> n.payload().get("sessionId")).collect(Collectors.toList()));
     }
 
     @Test
@@ -212,7 +216,7 @@ class HighLevelApiTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "minimal-turn"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "minimal-turn"))
                 .build())) {
             harness.run("one turn", "main", null);
             assertEquals(0, harness.client().notificationsQueue().size());
@@ -226,7 +230,7 @@ class HighLevelApiTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "late-idle"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "late-idle"))
                 .build())) {
             first = harness.run("first turn", "main", null);
             second = harness.run("second turn", "main", null);
@@ -234,8 +238,8 @@ class HighLevelApiTest {
 
         assertEquals("first", first.finalResponse());
         assertEquals("second", second.finalResponse());
-        assertEquals(List.of("main", "main", "main", "main"),
-                second.notifications().stream().map(n -> n.payload().get("sessionId")).toList());
+        assertEquals(Jdk8.listOf("main", "main", "main", "main"),
+                second.notifications().stream().map(n -> n.payload().get("sessionId")).collect(Collectors.toList()));
     }
 
     private Map<String, Object> readJson(Path path) throws Exception {

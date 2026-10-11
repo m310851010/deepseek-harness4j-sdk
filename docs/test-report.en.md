@@ -1,4 +1,4 @@
-# deepseek-harness4j test report
+# deepseek-harness4j-sdk test report
 
 [中文](test-report.md) | English
 
@@ -293,7 +293,7 @@
 ## 4. Regenerating the report
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn -pl sdk test                          # re-run the tests (surefire reports in sdk/target/surefire-reports/)
 mvn -pl sdk surefire-report:report        # generate the HTML report (sdk/target/site/surefire-report.html)
 # This markdown report is generated from the surefire XML; the mapping table is §3 above.

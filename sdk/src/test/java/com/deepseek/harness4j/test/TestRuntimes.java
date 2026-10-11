@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.test;
 
+import java.nio.file.Paths;
+
 import com.deepseek.harness4j.client.HarnessConfig;
 
 import java.nio.file.Path;
@@ -21,7 +23,7 @@ public final class TestRuntimes {
     /** @return the argv that runs {@link FakeRuntime} in a fresh JVM on the test classpath. */
     public static String[] fakeRuntimeCommand() {
         String javaHome = System.getProperty("java.home");
-        String java = Path.of(javaHome, "bin", "java").toString();
+        String java = Paths.get(javaHome, "bin", "java").toString();
         return new String[]{java, "-cp", System.getProperty("java.class.path"),
                 FakeRuntime.class.getName()};
     }

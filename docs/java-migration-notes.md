@@ -1,4 +1,4 @@
-# Python → Java 逐行迁移笔记（deepseek-harness4j）
+# Python → Java 逐行迁移笔记（deepseek-harness4j-sdk）
 
 [English](java-migration-notes.en.md) | 中文
 
@@ -98,7 +98,7 @@
 
 > Python SDK 无框架集成;Java 移植新增了薄薄的 Spring 层,方便在 Java 技术栈直接使用。
 
-### 9.1 Spring Boot（starter 模块 `deepseek-harness4j-spring-boot-starter`）
+### 9.1 Spring Boot（starter 模块 `deepseek-harness4j-sdk-spring-boot-starter`）
 
 - `@AutoConfiguration` + `@ConditionalOnProperty(deepseek.harness.enabled, matchIfMissing=true)`。
 - `@ConfigurationProperties(prefix = "deepseek.harness")` → `DeepSeekHarnessProperties`,字段镜像 `DeepSeekHarnessConfig`(`provider`/`model`/`maxTokens`/`cwd`/`sessionRoot`/`cordis`/`runtimeBin`/`requestTimeoutSeconds`/`shutdownTimeoutSeconds`/`baseUrl`/`apiKey`/`env` 等)。
@@ -131,7 +131,7 @@ public class MyService {
 - 密钥建议不进配置中心,继续用环境变量(`DEEPSEEK_API_KEY`)或密钥管理服务注入运行时——SDK 默认继承父进程环境。
 - 若需多实例/路由,可把 `provider`/`model` 做成运行时上下文变量由下游配置覆盖。
 
-### 9.3 Spring MVC（example 模块 `deepseek-harness4j-spring-boot-example`）
+### 9.3 Spring MVC（example 模块 `deepseek-harness4j-sdk-spring-boot-example`）
 
 - 可运行示例:`DeepSeekHarness4jExampleApplication` + `HarnessController`。
 - `@PostMapping("/api/harness/run")` 接收 `{input, sessionId}` → 调 `template.run(input, sessionId, null)` → 返回 `RunResult`(JSON)。

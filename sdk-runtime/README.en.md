@@ -5,7 +5,7 @@
 Runtime carrier module for the DeepSeek Harness Java SDK: `RuntimeResolver`
 (`com.deepseek.harness4j.runtime`, the port of the upstream Python package
 `deepseek_harness_runtime`) locates the bundled runtime binaries the
-`deepseek-harness4j-sdk` client spawns, and ships the default configuration behind
+`deepseek-harness4j-sdk-core` client spawns, and ships the default configuration behind
 zero-config runs.
 
 ## Runtime carriers
@@ -23,7 +23,7 @@ Two carriers coexist under `runtime/`, both injected by the upstream deepseek-ha
   development and verification only; it is never selected automatically and is excluded from
   distributions.
 
-In the Java port, `deepseek-harness4j-sdk` ships the `deepseek-harness-runtime.json` metadata
+In the Java port, `deepseek-harness4j-sdk-core` ships the `deepseek-harness-runtime.json` metadata
 and the default `runtime/cordis.yml` directly as classpath resources. `RuntimeResolver.bundledPackageDir()`
 resolves the installed runtime root in this order: an explicit runtime directory (system
 property `dsh4j.runtime.dir` or environment variable `DSH4J_RUNTIME_DIR`), else the directory

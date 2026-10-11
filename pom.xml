@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Root Maven project for DeepSeek Harness Java SDK (deepseek-harness4j).
+  Root Maven project for DeepSeek Harness Java SDK (deepseek-harness4j-sdk).
 
   This project is a line-by-line Java port of the DeepSeek Harness Python SDK
   (python/sdk + python/sdk-runtime in the upstream deepseek-harness repository).
   Modules:
-    - deepseek-harness4j-sdk               core client + high-level turns API + runtime resolution
-    - deepseek-harness4j-spring-boot-starter  Spring Boot auto-configuration around the SDK
-    - deepseek-harness4j-spring-boot-example  runnable Spring Boot MVC example
+    - deepseek-harness4j-sdk-core               core client + high-level turns API + runtime resolution
+    - deepseek-harness4j-sdk-spring-boot-starter  Spring Boot auto-configuration around the SDK
+    - deepseek-harness4j-sdk-spring-boot-example  runnable Spring Boot MVC example
 
-  JDK: targets Java 17 LTS via the Maven release flag. Java 17 is the baseline for
-  Spring Boot 3.x and matches the LTS release used by most Spring deployments;
-  the code also builds and runs on Java 21 / 25.
+  JDK: targets Java 8 (1.8) via maven.compiler.source/target so the SDK runs on legacy
+  JDK 8 deployments. When building on JDK 9+ a profile activates maven.compiler.release=8
+  so javac also checks the compiled code against the JDK 8 API surface. Spring Boot is
+  pinned to 2.7.x, the last Spring Boot line that supports Java 8.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -19,13 +20,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.deepseek-ai</groupId>
-  <artifactId>deepseek-harness4j</artifactId>
+  <artifactId>deepseek-harness4j-sdk</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>deepseek-harness4j</name>
+  <name>deepseek-harness4j-sdk</name>
   <description>Enterprise Java SDK &amp; Agent Runtime Framework for DeepSeek Harness (DeepSeek-R1 / V3)</description>
-  <url>https://github.com/geekma/deepseek-harness4j</url>
+  <url>https://github.com/m310851010/deepseek-harness4j-sdk</url>
   <licenses>
     <license>
       <name>MIT</name>
@@ -35,10 +36,11 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <jackson.version>2.17.2</jackson.version>
     <junit.version>5.10.2</junit.version>
-    <spring.boot.version>3.3.5</spring.boot.version>
+    <spring.boot.version>2.7.18</spring.boot.version>
     <slf4j.version>2.0.16</slf4j.version>
   </properties>
 
@@ -47,4 +49,19 @@
     <module>spring-boot-starter</module>
     <module>spring-boot-example</module>
   </modules>
+
+  <profiles>
+    <!-- On JDK 9+ cross-compile with the javac "release" flag set to 8 so javac verifies
+         the code only uses the JDK 8 API surface. JDK 8 itself has no such flag, so the
+         default source/target 1.8 configuration applies there. -->
+    <profile>
+      <id>jdk9-plus</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <properties>
+        <maven.compiler.release>8</maven.compiler.release>
+      </properties>
+    </profile>
+  </profiles>
 </project>

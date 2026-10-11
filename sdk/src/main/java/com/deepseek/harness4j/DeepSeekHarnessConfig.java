@@ -240,9 +240,10 @@ public final class DeepSeekHarnessConfig {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DeepSeekHarnessConfig that)) {
+        if (!(o instanceof DeepSeekHarnessConfig)) {
             return false;
         }
+        DeepSeekHarnessConfig that = (DeepSeekHarnessConfig) o;
         return Objects.equals(provider, that.provider)
                 && Objects.equals(model, that.model)
                 && Objects.equals(maxTokens, that.maxTokens)

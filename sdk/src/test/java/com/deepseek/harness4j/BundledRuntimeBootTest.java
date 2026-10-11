@@ -1,5 +1,7 @@
 package com.deepseek.harness4j;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.client.HarnessClient;
 import com.deepseek.harness4j.client.HarnessConfig;
 import com.deepseek.harness4j.error.MissingRuntimeException;
@@ -29,30 +31,30 @@ class BundledRuntimeBootTest {
 
     private static final String[] MODES = {"exe", "node"};
 
-    private static final String CORDIS_YML = """
-            - id: sdk-jsonrpc-server
-              name: '@deepseek-ai/dsh-sdk-jsonrpc-server'
-            - id: agent-core
-              name: '@deepseek-ai/dsh-agent-spine-demo'
-              config:
-                workspaceContext: false
-            - id: sessions
-              name: '@deepseek-ai/dsh-session-persistence-jsonl'
-              config:
-                root: './sessions'
-            - id: session-checkpoints
-              name: '@deepseek-ai/dsh-session-checkpoint-policy'
-            - id: subprocess
-              name: '@deepseek-ai/dsh-subprocess-local'
-            - id: bash
-              name: '@deepseek-ai/dsh-bash-local'
-              config:
-                cwd: '.'
-            - id: todo
-              name: '@deepseek-ai/dsh-tool-todo'
-              config:
-                allowParallelInProgress: true
-            """;
+    private static final String CORDIS_YML = String.join("\n",
+            "- id: sdk-jsonrpc-server",
+            "  name: '@deepseek-ai/dsh-sdk-jsonrpc-server'",
+            "- id: agent-core",
+            "  name: '@deepseek-ai/dsh-agent-spine-demo'",
+            "  config:",
+            "    workspaceContext: false",
+            "- id: sessions",
+            "  name: '@deepseek-ai/dsh-session-persistence-jsonl'",
+            "  config:",
+            "    root: './sessions'",
+            "- id: session-checkpoints",
+            "  name: '@deepseek-ai/dsh-session-checkpoint-policy'",
+            "- id: subprocess",
+            "  name: '@deepseek-ai/dsh-subprocess-local'",
+            "- id: bash",
+            "  name: '@deepseek-ai/dsh-bash-local'",
+            "  config:",
+            "    cwd: '.'",
+            "- id: todo",
+            "  name: '@deepseek-ai/dsh-tool-todo'",
+            "  config:",
+            "    allowParallelInProgress: true",
+            "") + "\n";
 
     @TempDir
     Path tmp;
@@ -71,7 +73,7 @@ class BundledRuntimeBootTest {
         return new HarnessClient(HarnessConfig.builder()
                 .launchArgsOverride(launchArgs)
                 .cwd(tmp.toString())
-                .env(Map.of(
+                .env(Jdk8.mapOf(
                         "DSH_CORDIS_CONFIG", "./cordis.yml",
                         "DSH_SESSION_ROOT", tmp.resolve("sessions").toString(),
                         "DSH_CWD", tmp.toString(),
@@ -86,10 +88,10 @@ class BundledRuntimeBootTest {
     @ValueSource(strings = {"exe", "node"})
     void test_bundled_runtime_boots_a_cordis_config(String mode) throws Exception {
         String[] launchArgs = launchArgsForMode(mode);
-        Files.writeString(tmp.resolve("cordis.yml"), CORDIS_YML);
+        Jdk8.writeString(tmp.resolve("cordis.yml"), CORDIS_YML);
 
         try (HarnessClient client = client(tmp, launchArgs)) {
-            var init = client.initialize(tmp.toString(), "deepseek-official", "deepseek-v4-pro", null);
+            com.deepseek.harness4j.model.InitializeResponse init = client.initialize(tmp.toString(), "deepseek-official", "deepseek-v4-pro", null);
             assertNotNull(init.serverInfo());
             assertTrue(init.serverInfo().name().endsWith("sdk-runtime"));
         }
@@ -104,7 +106,7 @@ class BundledRuntimeBootTest {
                 .model(model)
                 .cwd(tmp.toString())
                 .sessionRoot(tmp.resolve("sessions").toString())
-                .env(Map.of(
+                .env(Jdk8.mapOf(
                         "DSH_MODEL", model,
                         "DSH_CONTEXT_WINDOW", "1000000",
                         "DSH_SYSTEM_PROMPT", "You are the Java SDK minimal boot test agent."))
@@ -114,7 +116,7 @@ class BundledRuntimeBootTest {
                 .requestTimeoutSeconds(120.0)
                 .build());
 
-        try (harness) {
+        try (DeepSeekHarness res = harness) {
             // start + initialize only; no model call
         }
     }
@@ -123,7 +125,7 @@ class BundledRuntimeBootTest {
     @ValueSource(strings = {"exe", "node"})
     void test_bundled_runtime_surfaces_unbundled_plugin_failure(String mode) throws Exception {
         String[] launchArgs = launchArgsForMode(mode);
-        Files.writeString(tmp.resolve("cordis.yml"),
+        Jdk8.writeString(tmp.resolve("cordis.yml"),
                 "- id: missing\n  name: '@deepseek-ai/dsh-does-not-exist'\n");
 
         HarnessClient client = client(tmp, launchArgs);
@@ -153,7 +155,7 @@ class BundledRuntimeBootTest {
                 .baseUrl("http://127.0.0.1:9")
                 .requestTimeoutSeconds(120.0)
                 .build());
-        try (harness) {
+        try (DeepSeekHarness res = harness) {
             // zero-config run: the bundled default cordis.yml is injected
         }
     }

@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.test;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,9 +41,9 @@ public final class SmokeCompletions {
         List<String> userPrompts = new ArrayList<>();
         for (int i = messages.size() - 1; i >= 0; i--) {
             Object message = messages.get(i);
-            if (message instanceof Map messageMap
-                    && "user".equals(messageMap.get("role"))) {
-                userPrompts.add(messageText(messageMap.get("content")));
+            if (message instanceof Map
+                    && "user".equals(((Map<?, ?>) message).get("role"))) {
+                userPrompts.add(messageText(((Map<?, ?>) message).get("content")));
             }
         }
         for (String prompt : userPrompts) {
@@ -64,11 +66,11 @@ public final class SmokeCompletions {
         firstDelta.put("role", "assistant");
         firstDelta.put("content", null); // Python's content: None
         firstDelta.put("reasoning_content", "");
-        chunks.add(Map.of("choices", List.of(Map.of("delta", firstDelta))));
-        chunks.add(Map.of("choices", List.of(Map.of("delta", Map.of("content", text)))));
-        chunks.add(Map.of(
-                "choices", List.of(Map.of("delta", Map.of("content", ""), "finish_reason", "stop")),
-                "usage", Map.of("prompt_tokens", 3, "completion_tokens", 3)));
+        chunks.add(Jdk8.mapOf("choices", Jdk8.listOf(Jdk8.mapOf("delta", firstDelta))));
+        chunks.add(Jdk8.mapOf("choices", Jdk8.listOf(Jdk8.mapOf("delta", Jdk8.mapOf("content", text)))));
+        chunks.add(Jdk8.mapOf(
+                "choices", Jdk8.listOf(Jdk8.mapOf("delta", Jdk8.mapOf("content", ""), "finish_reason", "stop")),
+                "usage", Jdk8.mapOf("prompt_tokens", 3, "completion_tokens", 3)));
         return chunks;
     }
 
@@ -76,15 +78,18 @@ public final class SmokeCompletions {
      * Read OpenAI text content in either string or block-list form (port of {@code message_text}).
      */
     public static String messageText(Object content) {
-        if (content instanceof String string) {
-            return string;
+        if (content instanceof String) {
+            return (String) content;
         }
-        if (content instanceof List<?> list) {
+        if (content instanceof List) {
+            List<?> list = (List<?>) content;
             StringBuilder builder = new StringBuilder();
             for (Object block : list) {
-                if (block instanceof Map<?, ?> blockMap
-                        && blockMap.get("text") instanceof String text) {
-                    builder.append(text);
+                if (block instanceof Map<?, ?>) {
+                    Map<?, ?> blockMap = (Map<?, ?>) block;
+                    if (blockMap.get("text") instanceof String) {
+                        builder.append((String) blockMap.get("text"));
+                    }
                 }
             }
             return builder.toString();

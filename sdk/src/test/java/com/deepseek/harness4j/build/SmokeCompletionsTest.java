@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.build;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.test.SmokeCompletions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,10 +25,10 @@ class SmokeCompletionsTest {
     })
     void test_child_prompt_precedes_runtime_context(String promptName, String expected) {
         String prompt = promptFor(promptName);
-        List<Map<String, Object>> chunks = SmokeCompletions.completionChunks(Map.of(
-                "messages", List.of(
-                        Map.of("role", "user", "content", prompt),
-                        Map.of("role", "user", "content", "Current runtime context"))));
+        List<Map<String, Object>> chunks = SmokeCompletions.completionChunks(Jdk8.mapOf(
+                "messages", Jdk8.listOf(
+                        Jdk8.mapOf("role", "user", "content", prompt),
+                        Jdk8.mapOf("role", "user", "content", "Current runtime context"))));
 
         boolean matched = false;
         for (Map<String, Object> chunk : chunks) {

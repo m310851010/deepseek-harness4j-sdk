@@ -1,4 +1,4 @@
-# Examples (deepseek-harness4j examples)
+# Examples (deepseek-harness4j-sdk examples)
 
 [中文](README.md) | English
 
@@ -11,7 +11,7 @@ Runnable demonstrations of the main DeepSeek Harness interfaces and extension po
 An unattended coding agent driven through the SDK and JSON-RPC. Upstream it is `minimal.py` (Python); this repository's counterpart is `MinimalAgent` (`com.deepseek.harness4j.examples.MinimalAgent`). Example reference: [jsonrpc-agent/README.md](jsonrpc-agent/README.md).
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn -q -pl sdk exec:java \
   -Dexec.mainClass=com.deepseek.harness4j.examples.MinimalAgent \
   -Dexec.args="--workspace /absolute/path/workspace --session-root /absolute/path/sessions --session-id example-001 'your task'"

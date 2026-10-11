@@ -1,5 +1,8 @@
 package com.deepseek.harness4j;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.util.stream.Collectors;
+
 import com.deepseek.harness4j.model.Notification;
 import com.deepseek.harness4j.test.FakeRuntime;
 import com.deepseek.harness4j.test.TestRuntimes;
@@ -42,7 +45,7 @@ class ReadmeExamplesTest {
                 .cwd(tmp.toString())
                 .sessionRoot(tmp.resolve("sessions").toString())
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
-                .env(Map.of("FR_SCENARIO", "main-turn"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "main-turn"))
                 .build())) {
             RunResult result = harness.run("Read package.json and print the list of scripts.");
             assertEquals("hello from runtime", result.finalResponse());
@@ -58,7 +61,7 @@ class ReadmeExamplesTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "minimal-turn"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "minimal-turn"))
                 .build())) {
             assertEquals("ok", harness.run(prompt).finalResponse());
         }
@@ -70,15 +73,15 @@ class ReadmeExamplesTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "late-idle"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "late-idle"))
                 .build())) {
             RunResult first = harness.run("Remember: this project builds with Maven.", "session-1", null);
             RunResult second = harness.run("What build tool do we use?", "session-1", null);
             assertEquals("first", first.finalResponse());
             assertEquals("second", second.finalResponse());
-            assertEquals(List.of("session-1", "session-1", "session-1", "session-1"),
+            assertEquals(Jdk8.listOf("session-1", "session-1", "session-1", "session-1"),
                     second.notifications().stream()
-                            .map(n -> n.payload().get("sessionId")).toList());
+                            .map(n -> n.payload().get("sessionId")).collect(Collectors.toList()));
         }
     }
 
@@ -89,7 +92,7 @@ class ReadmeExamplesTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "main-turn",
+                .env(Jdk8.mapOf("FR_SCENARIO", "main-turn",
                         "ENV_DUMP", envDump.toString(),
                         "DSH_SYSTEM_PROMPT", "你是一名严谨的 Java 代码审查助手。"))
                 .build())) {
@@ -106,7 +109,7 @@ class ReadmeExamplesTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "callback-subagent"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "callback-subagent"))
                 .build())) {
             harness.run("Change the README title to English.", "session-2", notification -> {
                 if ("session.event".equals(notification.method())) {
@@ -114,7 +117,7 @@ class ReadmeExamplesTest {
                 }
             });
         }
-        assertEquals(List.of("session.event"), methods);
+        assertEquals(Jdk8.listOf("session.event"), methods);
     }
 
     @Test
@@ -123,7 +126,7 @@ class ReadmeExamplesTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "main-turn"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "main-turn"))
                 .build())) {
             RunResult result = harness.run("Fix the compile errors.", "session-3", null);
             assertEquals("max-tokens", result.finishReason());
@@ -146,7 +149,7 @@ class ReadmeExamplesTest {
                 .maxTokens(2048)
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "main-turn", "INIT_DUMP", initDump.toString()))
+                .env(Jdk8.mapOf("FR_SCENARIO", "main-turn", "INIT_DUMP", initDump.toString()))
                 .build())) {
             harness.run("greet", "main", null);
         }
@@ -162,7 +165,7 @@ class ReadmeExamplesTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "main-turn"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "main-turn"))
                 .build())) {
             RunResult result = harness.run("Run mvn -q test and report the failing cases.");
             List<Object> texts = new ArrayList<>();
@@ -173,7 +176,7 @@ class ReadmeExamplesTest {
                     texts.add(content.get(0).get("text"));
                 }
             }
-            assertEquals(List.of("hello from runtime"), texts);
+            assertEquals(Jdk8.listOf("hello from runtime"), texts);
         }
     }
 
@@ -184,7 +187,7 @@ class ReadmeExamplesTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .cwd(tmp.toRealPath().toString())
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
-                .env(Map.of("FR_SCENARIO", "capture-cwd", "CAPTURE", capture.toString()))
+                .env(Jdk8.mapOf("FR_SCENARIO", "capture-cwd", "CAPTURE", capture.toString()))
                 .build())) {
             harness.start();
         }
@@ -200,13 +203,13 @@ class ReadmeExamplesTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "subagent-finished"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "subagent-finished"))
                 .build())) {
             harness.run("Analyze two modules in parallel with subagents.", "main", notification -> {
-                switch (notification.method()) {
-                    case "subagent.started" -> started.putAll(notification.payload());
-                    case "subagent.finished" -> finished.putAll(notification.payload());
-                    default -> { }
+                if ("subagent.started".equals(notification.method())) {
+                    started.putAll(notification.payload());
+                } else if ("subagent.finished".equals(notification.method())) {
+                    finished.putAll(notification.payload());
                 }
             });
         }
@@ -225,7 +228,7 @@ class ReadmeExamplesTest {
                 .sessionRoot(tmp.resolve("sessions").toString())
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "main-turn", "ENV_DUMP", envDump.toString()))
+                .env(Jdk8.mapOf("FR_SCENARIO", "main-turn", "ENV_DUMP", envDump.toString()))
                 .build())) {
             RunResult result = harness.run("log this", "main", null);
             assertEquals(tmp.resolve("sessions").toString(), result.sessionRoot());

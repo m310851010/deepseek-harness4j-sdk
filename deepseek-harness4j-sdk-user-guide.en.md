@@ -1,8 +1,8 @@
 # DeepSeek Harness4j — Complete User Guide (Java SDK)
 
-[中文](deepseek-harness4j-使用指南.md) | English
+[中文](deepseek-harness4j-sdk-使用指南.md) | English
 
-> This file is the **Java port** of the repository's `deepseek-harness-使用指南.md` (compiled from reading the source and official docs of the GitHub repository `deepseek-ai/deepseek-harness`, master branch): all Python SDK examples have been rewritten to Java (`deepseek-harness4j`); the Node/CLI and Cordis composition (`cordis.yml`) sections remain unchanged — because they drive the very same runtime.
+> This file is the **Java port** of the repository's `deepseek-harness-使用指南.md` (compiled from reading the source and official docs of the GitHub repository `deepseek-ai/deepseek-harness`, master branch): all Python SDK examples have been rewritten to Java (`deepseek-harness4j-sdk`); the Node/CLI and Cordis composition (`cordis.yml`) sections remain unchanged — because they drive the very same runtime.
 > Last verified: 2026-08-13. **Note: this project is in developer preview, iterates fast, and ships breaking changes; always defer to the official docs before use.**
 
 ---
@@ -16,7 +16,7 @@
 - Core design philosophy: **Everything is a plugin**. Sessions, system prompts, tools, agent loops, LLM access, bash, filesystem, subprocess, web capabilities, sub-agents, workflows… all are pluggable Cordis plugins.
 - Powered underneath by __Cordis__ (https://github.com/cordiverse/cordis), whose design philosophy comes from the paper [_A Programming Paradigm for Spatiotemporal Composability_](https://github.com/cordiverse/paper).
 - License: **MIT License**.
-- The project is written in Node.js + TypeScript as a pnpm monorepo; it also ships a Python SDK (`deepseek-harness-sdk`). This repository, `deepseek-harness4j`, provides the corresponding **Java SDK** (a line-by-line port of the Python SDK).
+- The project is written in Node.js + TypeScript as a pnpm monorepo; it also ships a Python SDK (`deepseek-harness4j-sdk`). This repository, `deepseek-harness4j-sdk`, provides the corresponding **Java SDK** (a line-by-line port of the Python SDK).
 
 ### 1.2 Architecture Highlights
 
@@ -26,7 +26,7 @@
 | Core packages | `@deepseek-ai/dsh-core` (session, system-prompt, tools, agent, agent-loop) |
 | LLM layer | `@deepseek-ai/dsh-llm` + adapters `dsh-llm-deepseek` (official direct), `dsh-llm-pi-ai` (universal multi-provider), `dsh-llm-retry` |
 | Capability layer | shell, subprocess, terminal, fs, lsp, skill, web, compaction, subagent, workflow, todo, plan… |
-| Clients | Web UI, CLI, Python SDK, Java SDK (deepseek-harness4j), ACP (Agent Client Protocol), JSON-RPC |
+| Clients | Web UI, CLI, Python SDK, Java SDK (deepseek-harness4j-sdk), ACP (Agent Client Protocol), JSON-RPC |
 | Data | Sessions persisted to JSONL logs; SQLite stores metadata |
 
 **Key conclusion: swapping models or wiring up a custom server endpoint is mostly "configuration" rather than "code changes."** Because `dsh-llm-pi-ai` ships built-in support for OpenAI-compatible, Anthropic, and several other protocols, a self-hosted OpenAI-compatible gateway can be wired in directly via config. This conclusion holds for the Java SDK as well — the Java side only swaps the client language; model configuration is identical.
@@ -67,21 +67,21 @@ In a sentence: **dsh is essentially DeepSeek's take on Claude Code / a self-host
 
 ## 2. How to Install and Use
 
-> **This file is the official user guide for the `deepseek-harness4j` Java SDK.** Section 2 first introduces the **Java SDK install/use path** (the recommended primary path); the other approaches (Web UI, CLI, running from source) are **upstream companion clients**, listed in section 2.2 for cross-reference.
+> **This file is the official user guide for the `deepseek-harness4j-sdk` Java SDK.** Section 2 first introduces the **Java SDK install/use path** (the recommended primary path); the other approaches (Web UI, CLI, running from source) are **upstream companion clients**, listed in section 2.2 for cross-reference.
 
-### 2.1 Option A: Java SDK (programmatic use, deepseek-harness4j) ⭐ Recommended
+### 2.1 Option A: Java SDK (programmatic use, deepseek-harness4j-sdk) ⭐ Recommended
 
 #### 2.1.1 Prerequisites
 
-- **JDK 17+** (LTS; the code also runs on 21 / 25)
+- **JDK 8+** (baseline 1.8; the code also builds/runs on 17 / 21)
 - **Maven 3.9+**
 - A working DeepSeek Harness runtime carrier (`dsh-jsonrpc-agent`)
 
 #### 2.1.2 Build the SDK from source
 
 ```sh
-git clone https://github.com/geekma/deepseek-harness4j.git
-cd deepseek-harness4j
+git clone https://github.com/m310851010/deepseek-harness4j-sdk.git
+cd deepseek-harness4j-sdk
 mvn install            # Build all modules (sdk / spring-boot-starter / spring-boot-example)
 mvn test               # Run tests (all reactor modules, 116 cases)
 ```
@@ -91,7 +91,7 @@ mvn test               # Run tests (all reactor modules, 116 cases)
 ```xml
 <dependency>
     <groupId>com.deepseek-ai</groupId>
-    <artifactId>deepseek-harness4j-sdk</artifactId>
+    <artifactId>deepseek-harness4j-sdk-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -111,7 +111,7 @@ cd deepseek-harness
 corepack enable
 pnpm install
 pnpm exec tsx scripts/build-exe-for-python-sdk.ts
-# Place the generated dsh-jsonrpc-agent-pkg-<platform>-<arch> into the deepseek-harness4j runtime directory
+# Place the generated dsh-jsonrpc-agent-pkg-<platform>-<arch> into the deepseek-harness4j-sdk runtime directory
 ```
 
 #### 2.1.5 Minimal Java example
@@ -402,7 +402,7 @@ Mount it in `cordis.yml` and have the agent use it:
 
 ## 5. Common Repository Commands
 
-### 5.1 deepseek-harness4j (this Java repository)
+### 5.1 deepseek-harness4j-sdk (this Java repository)
 
 ```sh
 # Build & test
@@ -429,7 +429,7 @@ pnpm run demo:acp       # ACP automation server (requires DEEPSEEK_API_KEY)
 dsh --profile headless "task"
 ```
 
-> The Java-side (deepseek-harness4j) equivalent commands are in `development.en.md`: `mvn install` / `mvn test`.
+> The Java-side (deepseek-harness4j-sdk) equivalent commands are in `development.en.md`: `mvn install` / `mvn test`.
 
 ---
 
@@ -438,9 +438,9 @@ dsh --profile headless "task"
 ### 6.1 Java SDK quick start (this repository's primary path)
 
 ```sh
-# 1) Prerequisites: JDK 17+ / Maven 3.9+ / runtime carrier (see 2.1.4)
+# 1) Prerequisites: JDK 8+ / Maven 3.8+ / runtime carrier (see 2.1.4)
 # 2) Build the SDK
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn install
 
 # 3) Set credentials and a custom gateway (optional)
@@ -449,7 +449,7 @@ export DEEPSEEK_API_KEY=sk-xxx
 # export DSH_MODEL=your-custom-model-id
 
 # 4) Call from Java code:
-#    - Add the Maven dependency com.deepseek-ai:deepseek-harness4j-sdk
+#    - Add the Maven dependency com.deepseek-ai:deepseek-harness4j-sdk-core
 #    - new DeepSeekHarness(config).run("your task description")
 ```
 
@@ -492,7 +492,7 @@ Then simply select the model in Models. Changing the model **needs no server res
 - Full plugin config field reference: `docs/config-catalog.md`
 - Writing an LLM adapter: `docs/cookbook/adding-an-llm-adapter.md`, `docs/user/develop/practice/llm-adapter.md`
 - Adapter implementation references: `packages/llm/llm-deepseek/`, `packages/llm/llm-pi-ai/`
-- Java SDK (this repository): `deepseek-harness4j/README.md`, `deepseek-harness4j/development.en.md`, `deepseek-harness4j/docs/java-migration-notes.en.md`
+- Java SDK (this repository): `deepseek-harness4j-sdk/README.md`, `deepseek-harness4j-sdk/development.en.md`, `deepseek-harness4j-sdk/docs/java-migration-notes.en.md`
 
 ---
 
@@ -500,7 +500,7 @@ Then simply select the model in Models. Changing the model **needs no server res
 
 > The demos below were all verified against the repository's real files (`examples/jsonrpc-agent/minimal.cordis.yml`, `minimal.py`, `docs/user/guide/*`, `packages/llm/*`). Example code is annotated for clarity. **Before running any demo, prepare:**
 >
-> - A machine with Node.js (>=22) or Python (>=3.10); **Java demos additionally require JDK 17+ and Maven, plus an installed runtime carrier (see `development.en.md`)**;
+> - A machine with Node.js (>=22) or Python (>=3.10); **Java demos additionally require JDK 8+ and Maven, plus an installed runtime carrier (see `development.en.md`)**;
 > - A reachable model endpoint + key (DeepSeek official, or any OpenAI-compatible self-hosted gateway);
 > - A standalone working directory you "allow the agent to modify" (an empty directory is recommended; don't use a real project).
 
@@ -578,7 +578,7 @@ pnpm dsh --profile headless "List all files in this repo and count lines of Type
 ### 9.1 Minimal three steps
 
 ```sh
-# 1) Add the dependency (see deepseek-harness4j/sdk README): Maven coordinate com.deepseek-ai:deepseek-harness4j-sdk
+# 1) Add the dependency (see deepseek-harness4j-sdk/sdk README): Maven coordinate com.deepseek-ai:deepseek-harness4j-sdk-core
 # 2) Set credentials
 export DEEPSEEK_API_KEY=sk-your-key
 # 3) Use it
@@ -1056,7 +1056,7 @@ export LOCAL_KEY=ollama   # local gateways usually don't validate; any non-empty
 ```
 
 ```java
-// Java SDK (deepseek-harness4j): equivalent to the upstream Python DeepSeekHarness call
+// Java SDK (deepseek-harness4j-sdk): equivalent to the upstream Python DeepSeekHarness call
 import com.deepseek.harness4j.DeepSeekHarness;
 import com.deepseek.harness4j.DeepSeekHarnessConfig;
 import com.deepseek.harness4j.RunResult;
@@ -1101,21 +1101,21 @@ ls -la ~/dsh-demo/sessions   # JSONL session logs
 
 ## 15. Live Verification Record (2026-08-13, actually run)
 
-> This section is a record from __running on a real machine__, not an illustrative example. Environment: macOS, Python SDK `deepseek-harness-sdk==0.1.0rc6`, installed in an isolated venv via `uv`.
+> This section is a record from __running on a real machine__, not an illustrative example. Environment: macOS, Python SDK `deepseek-harness4j-sdk==0.1.0rc6`, installed in an isolated venv via `uv`.
 > Model config used: __reusing this machine's Hermes instance's model endpoint__ — Volcano Ark (Volcano Engine) OpenAI-compatible endpoint `https://ark.cn-beijing.volces.com/api/coding/v3`, model `deepseek-v4-flash-ga-260731`. That is: `DEEPSEEK_API_KEY` + `DEEPSEEK_BASE_URL` pointed at a custom endpoint, with no dsh code changes whatsoever — which neatly validates "custom model = config, not code".
 >
-> **Java port note**: the records below are real outputs from the upstream Python SDK. The `deepseek-harness4j` Java SDK **corresponds line-by-line** to that Python SDK (`RunResult.finalResponse()` / `finishReason()` / `sessionId()` map one-to-one to the Python result fields); under the same runtime and model config, equivalent results should be obtained. You can reproduce using this repository's `sdk` `FakeRuntime` tests or a real endpoint.
+> **Java port note**: the records below are real outputs from the upstream Python SDK. The `deepseek-harness4j-sdk` Java SDK **corresponds line-by-line** to that Python SDK (`RunResult.finalResponse()` / `finishReason()` / `sessionId()` map one-to-one to the Python result fields); under the same runtime and model config, equivalent results should be obtained. You can reproduce using this repository's `sdk` `FakeRuntime` tests or a real endpoint.
 
 ### 15.1 Environment & Install
 
 ```sh
 # Python 3.11, build a clean venv with uv (to avoid polluting the host's pip/conda env)
 uv venv dshuv --python 3.11
-uv pip install --python /tmp/dshuv/bin/python deepseek-harness-sdk
-# Result: installed deepseek-harness-sdk==0.1.0rc6 + the matching runtime binary (~50MB)
+uv pip install --python /tmp/dshuv/bin/python deepseek-harness4j-sdk
+# Result: installed deepseek-harness4j-sdk==0.1.0rc6 + the matching runtime binary (~50MB)
 ```
 
-Java side: add the `com.deepseek-ai:deepseek-harness4j-sdk` dependency and install the runtime carrier (`mvn install`, see `development.en.md`).
+Java side: add the `com.deepseek-ai:deepseek-harness4j-sdk-core` dependency and install the runtime carrier (`mvn install`, see `development.en.md`).
 
 ### 15.2 First Call (plain chat)
 
@@ -1275,7 +1275,7 @@ Web UI + CLI + Python SDK + Java SDK + ACP + JSON-RPC + hooks, all driving the s
 - **Higher complexity**: it's a framework, not an out-of-the-box product; the learning curve for `cordis.yml` composition, the seam triplet, and the event model is noticeably steeper than Claude Code's simple config.
 - **Preview stage**: the README self-describes "breaking changes will happen".
 - **DeepSeek-first**: OpenAI/Anthropic must go through the pi-ai catalog or a custom provider; not as out-of-the-box as Claude Code tied to its own model.
-- **Main lane is single-language**: the core is Node/TS; Python is only a client SDK (not a reimplementation); **Java (deepseek-harness4j) is likewise a client SDK (a line-by-line port of the Python SDK, not a reimplementation)**.
+- **Main lane is single-language**: the core is Node/TS; Python is only a client SDK (not a reimplementation); **Java (deepseek-harness4j-sdk) is likewise a client SDK (a line-by-line port of the Python SDK, not a reimplementation)**.
 
 ---
 
@@ -1293,16 +1293,16 @@ Web UI + CLI + Python SDK + Java SDK + ACP + JSON-RPC + hooks, all driving the s
 | Security | Sandbox (bwrap/Landlock/Seatbelt), approval/permission policies, tool timeouts, loop-hygiene guards |
 | Collaboration | ask-user, commands, human feedback, scheduled follow-ups |
 | Extension | Everything is a plugin, HMR, self-modification, per-session preset composition |
-| Interfaces | Web UI, CLI, Python SDK, Java SDK (deepseek-harness4j), ACP, JSON-RPC, Claude Code/Codex hooks bridge |
+| Interfaces | Web UI, CLI, Python SDK, Java SDK (deepseek-harness4j-sdk), ACP, JSON-RPC, Claude Code/Codex hooks bridge |
 | Engineering | Type-graph generation, snapshot replay tests, 100% coverage gate, Agent Notes docs |
 
 ### 17.2 Tech Stack & Key Dependencies
 
 | Item | Value |
 |---|---|
-| Language | TypeScript (ESM, `strict:true`), Python (client SDK), Java (client SDK, deepseek-harness4j) |
-| Runtime | Node.js `^22.19.0 \|\| >=24.0.0` (repo engine field); Python >=3.10 (SDK only); Java 17+ (deepseek-harness4j only) |
-| Package manager | pnpm@11.7.0 (monorepo workspaces); Maven (deepseek-harness4j) |
+| Language | TypeScript (ESM, `strict:true`), Python (client SDK), Java (client SDK, deepseek-harness4j-sdk) |
+| Runtime | Node.js `^22.19.0 \|\| >=24.0.0` (repo engine field); Python >=3.10 (SDK only); Java 8+ (deepseek-harness4j-sdk only) |
+| Package manager | pnpm@11.7.0 (monorepo workspaces); Maven (deepseek-harness4j-sdk) |
 | Underlying framework | **Cordis** (vendored into `vendor/`; plugin/context/event/reversible-effects) |
 | Config schema | `@deepseek-ai/schemastery` |
 | Session storage | JSONL (zstd compressed) + SQLite (metadata/full-text search) |
@@ -1315,7 +1315,7 @@ Web UI + CLI + Python SDK + Java SDK + ACP + JSON-RPC + hooks, all driving the s
 
 - **Node**: `^22.19.0 || >=24.0.0` (for Web UI / CLI / source).
 - **Python SDK**: Python 3.10+; supports **Linux x64, Linux arm64, macOS 14+ (arm64)**; the SDK bundles the runtime, no system Node needed.
-- **Java SDK (deepseek-harness4j)**: JDK 17+; the runtime carrier platform matrix matches Python (Linux x64/arm64, macOS 14+ arm64).
+- **Java SDK (deepseek-harness4j-sdk)**: JDK 8+; the runtime carrier platform matrix matches Python (Linux x64/arm64, macOS 14+ arm64).
 - **Platform matrix**: CI covers macOS/Linux; Windows-related test paths exist (`test:check:windows-wine`, run only when diagnosing known Windows failures).
 
 ### 17.4 Repository Directory Structure (monorepo)
@@ -1327,8 +1327,8 @@ packages/    @deepseek-ai/dsh-<pkg> workspaces, grouped: core/ api/ typert/ llm/
              subagent/ workflow/ todo/ plan/ preset/ guard/ extensions/ hooks/
              session/ session-query/ settings/ credentials/ identity/ acp/
              interaction/ boot/ sdk/ host/ client/ bundle/ examples/ util/
-python/      Python SDK + bundled runtime (deepseek-harness-sdk / runtime-bin)
-deepseek-harness4j/  Java SDK port (this repo: sdk / sdk-runtime / spring-boot-starter / spring-boot-example / docs)
+python/      Python SDK + bundled runtime (deepseek-harness4j-sdk / runtime-bin)
+deepseek-harness4j-sdk/  Java SDK port (this repo: sdk / sdk-runtime / spring-boot-starter / spring-boot-example / docs)
 native/      Native landlock sandbox addon
 examples/    Runnable cordis.yml leaves (agent-spine + CLI/ACP/JSON-RPC examples)
 apps/        App entry points like the CLI (apps/cli/bin.ts -> dsh)
@@ -1351,7 +1351,7 @@ scripts/     Repo gates and generators
 | `DSH_SESSION_ROOT` | Session on-disk root directory |
 | `DSH_HOME` | Harness user directory (default `~/.dsh`; contains `settings.yaml`, `.credentials.yaml`) |
 | `DSH_CORDIS_CONFIG` | Inject a custom cordis config (used when the SDK launches the runtime) |
-| `DSH_RUNTIME_MODE` | Runtime carrier mode (`exe`/`node`, read by deepseek-harness4j's `RuntimeResolver`) |
+| `DSH_RUNTIME_MODE` | Runtime carrier mode (`exe`/`node`, read by deepseek-harness4j-sdk's `RuntimeResolver`) |
 
 > More provider-level fields are in the `llm-deepseek`/`llm-pi-ai` READMEs and `config-catalog.md`.
 
@@ -1364,7 +1364,7 @@ scripts/     Repo gates and generators
 - **License**: MIT (root `LICENSE`).
 - Third-party dependency & license disclosure: `THIRD_PARTY_NOTICES.md`.
 - npm package namespace: `@deepseek-ai/dsh-*`; CLI package `@deepseek-ai/dsh` (bin: `dsh`).
-- Java package coordinates: `com.deepseek-ai:deepseek-harness4j-*` (deepseek-harness4j repository).
+- Java package coordinates: `com.deepseek-ai:deepseek-harness4j-sdk-*` (deepseek-harness4j-sdk repository).
 - The underlying Cordis is source-pinned per the vendoring policy (vendor/README.md has the upstream SHA and sync process).
 
 ### 17.8 Community & Support
@@ -1386,13 +1386,13 @@ scripts/     Repo gates and generators
 
 ### 17.10 One-Line Positioning
 
-> **dsh is a general-purpose Agent harness where "everything is a plugin, model-agnostic, self-hostable, multi-client, with strong audit discipline and a sandbox" — DeepSeek's composable Claude Code, suited to teams that want to own their agent runtime, wire up private/self-hosted models, and want reproducible, auditable behavior. deepseek-harness4j line-by-line ports the Python SDK client to Java, letting Java/Spring stacks embed this runtime directly.**
+> **dsh is a general-purpose Agent harness where "everything is a plugin, model-agnostic, self-hostable, multi-client, with strong audit discipline and a sandbox" — DeepSeek's composable Claude Code, suited to teams that want to own their agent runtime, wire up private/self-hosted models, and want reproducible, auditable behavior. deepseek-harness4j-sdk line-by-line ports the Python SDK client to Java, letting Java/Spring stacks embed this runtime directly.**
 
 ---
 
 ## 18. Java 4j Exclusive Enterprise Enhancements
 
-`deepseek-harness4j` provides six enterprise-grade enhancements designed specifically for the Java / Spring ecosystem:
+`deepseek-harness4j-sdk` provides six enterprise-grade enhancements designed specifically for the Java / Spring ecosystem:
 
 ### 18.1 Pure Java Offline SessionLog Engine (Zstd Stream Decoding)
 

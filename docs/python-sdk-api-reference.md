@@ -2,7 +2,7 @@
 
 [English](python-sdk-api-reference.en.md) | 中文
 
-本文件把上游 `deepseek-harness` **Python SDK 的 100% 功能**沉淀为**可实现的公开规格**：SDK 公开 API、JSON-RPC 线上协议（方法/通知/事件/结果语义）、环境变量、生命周期，以及 web / cli / sdk / acp 等通道的关系。任何项目（Java、Go、Rust、JS……）都可以据此**从零实现一个与 Python SDK 等价的客户端**；`deepseek-harness4j` 的 Java SDK 即以此规格为蓝本（另见 [port-coverage.md](port-coverage.md) 与 [java-migration-notes.md](java-migration-notes.md)）。
+本文件把上游 `deepseek-harness` **Python SDK 的 100% 功能**沉淀为**可实现的公开规格**：SDK 公开 API、JSON-RPC 线上协议（方法/通知/事件/结果语义）、环境变量、生命周期，以及 web / cli / sdk / acp 等通道的关系。任何项目（Java、Go、Rust、JS……）都可以据此**从零实现一个与 Python SDK 等价的客户端**；`deepseek-harness4j-sdk` 的 Java SDK 即以此规格为蓝本（另见 [port-coverage.md](port-coverage.md) 与 [java-migration-notes.md](java-migration-notes.md)）。
 
 ## 1. 一句话模型
 
@@ -50,7 +50,7 @@
   "model": "deepseek-v4-flash",
   "maxTokens": 49152            // 可选
 }}
-// → result: {"serverInfo": {"name": "deepseek-harness-sdk-runtime", "version": "..."}}
+// → result: {"serverInfo": {"name": "deepseek-harness4j-sdk-runtime", "version": "..."}}
 ```
 
 语义：握手。失败时 SDK 会回收已启动的子进程再抛出。

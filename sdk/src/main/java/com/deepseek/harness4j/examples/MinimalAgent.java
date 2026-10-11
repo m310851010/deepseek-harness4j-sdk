@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.examples;
 
+import java.nio.file.Paths;
+
 import com.deepseek.harness4j.DeepSeekHarness;
 import com.deepseek.harness4j.DeepSeekHarnessConfig;
 import com.deepseek.harness4j.RunResult;
@@ -39,8 +41,8 @@ public final class MinimalAgent {
 
     public static void main(String[] args) throws Exception {
         String prompt = null;
-        Path workspace = Path.of("").toAbsolutePath();
-        Path sessionRoot = Path.of(".dsh-sessions").toAbsolutePath();
+        Path workspace = Paths.get("").toAbsolutePath();
+        Path sessionRoot = Paths.get(".dsh-sessions").toAbsolutePath();
         String sessionId = null;
         String provider = "deepseek-official";
         String model = System.getenv().getOrDefault("DSH_MODEL", "deepseek-v4-flash");
@@ -48,19 +50,23 @@ public final class MinimalAgent {
 
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            switch (arg) {
-                case "--workspace" -> workspace = Path.of(args[++i]);
-                case "--session-root" -> sessionRoot = Path.of(args[++i]);
-                case "--session-id" -> sessionId = args[++i];
-                case "--provider" -> provider = args[++i];
-                case "--model" -> model = args[++i];
-                case "--max-tokens" -> maxTokens = Integer.parseInt(args[++i]);
-                default -> {
-                    if (arg.startsWith("-")) {
-                        throw new IllegalArgumentException("unknown option: " + arg);
-                    }
-                    prompt = arg;
+            if ("--workspace".equals(arg)) {
+                workspace = Paths.get(args[++i]);
+            } else if ("--session-root".equals(arg)) {
+                sessionRoot = Paths.get(args[++i]);
+            } else if ("--session-id".equals(arg)) {
+                sessionId = args[++i];
+            } else if ("--provider".equals(arg)) {
+                provider = args[++i];
+            } else if ("--model".equals(arg)) {
+                model = args[++i];
+            } else if ("--max-tokens".equals(arg)) {
+                maxTokens = Integer.parseInt(args[++i]);
+            } else {
+                if (arg.startsWith("-")) {
+                    throw new IllegalArgumentException("unknown option: " + arg);
                 }
+                prompt = arg;
             }
         }
         if (prompt == null) {
@@ -89,9 +95,9 @@ public final class MinimalAgent {
                     "missing classpath resource " + CONFIG_RESOURCE + " (minimal.cordis.yml)");
         }
         if ("file".equals(resource.getProtocol())) {
-            return Path.of(URI.create(resource.toString()));
+            return Paths.get(URI.create(resource.toString()));
         }
-        Path target = Files.createTempFile("deepseek-harness4j-minimal-", ".cordis.yml");
+        Path target = Files.createTempFile("deepseek-harness4j-sdk-minimal-", ".cordis.yml");
         try (InputStream in = resource.openStream()) {
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         }

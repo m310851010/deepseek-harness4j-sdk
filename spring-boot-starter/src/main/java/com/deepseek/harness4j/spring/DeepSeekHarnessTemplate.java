@@ -11,7 +11,7 @@ import com.deepseek.harness4j.model.StreamChunk;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Flow;
+import com.deepseek.harness4j.util.flow.Publisher;
 import java.util.function.Consumer;
 
 /**
@@ -93,13 +93,13 @@ public class DeepSeekHarnessTemplate implements AutoCloseable {
         return harness.stream(input, onChunk);
     }
 
-    /** Return a reactive {@link Flow.Publisher} for streaming chunks. */
-    public Flow.Publisher<StreamChunk> stream(Object input, String sessionId) {
+    /** Return a reactive {@link Publisher} for streaming chunks. */
+    public Publisher<StreamChunk> stream(Object input, String sessionId) {
         return harness.stream(input, sessionId);
     }
 
-    /** Return a reactive {@link Flow.Publisher} for streaming chunks on a fresh session. */
-    public Flow.Publisher<StreamChunk> stream(Object input) {
+    /** Return a reactive {@link Publisher} for streaming chunks on a fresh session. */
+    public Publisher<StreamChunk> stream(Object input) {
         return harness.stream(input);
     }
 

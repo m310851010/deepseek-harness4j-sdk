@@ -6,7 +6,7 @@
 
 ## 构建运行时产物
 
-> **本节仅面向 SDK 贡献者与发布工程师。** 普通 Java SDK 用户请下载预编译载体二进制，参考 [sdk-runtime/README.md](sdk-runtime/README.md)。以下步骤需要**上游工具链**（Node.js 22+ / pnpm），这故意**不是** deepseek-harness4j 的依赖。
+> **本节仅面向 SDK 贡献者与发布工程师。** 普通 Java SDK 用户请下载预编译载体二进制，参考 [sdk-runtime/README.md](sdk-runtime/README.md)。以下步骤需要**上游工具链**（Node.js 22+ / pnpm），这故意**不是** deepseek-harness4j-sdk 的依赖。
 
 各平台可执行文件是构建产物，不检入 git（由上游 deepseek-harness 的构建注入到运行时载体）。请在**上游仓库根目录**运行构建：
 
@@ -19,12 +19,12 @@ pnpm exec tsx scripts/build-exe-for-python-sdk.ts
 
 所需 `lib/` 产物已存在时使用 `--skip-build`；如需选择平台，请使用 `--targets=node24-linux-x64,node24-linux-arm64,node24-macos-arm64`。产物写入上游 `dist-exe/`，脚本会将所选载体同步到对应运行时载体。macOS 构建还会同步 `node-pty` 所需的配套 spawn 辅助程序。
 
-构建完成后，把生成的可执行文件放入本仓库运行时载体目录（或在 `RuntimeResolver` 支持的显式运行时目录中安装 `deepseek-harness-runtime.json` 元数据 + `runtime/` 内容），即可让 `deepseek-harness4j-sdk` 以零配置方式启动它。
+构建完成后，把生成的可执行文件放入本仓库运行时载体目录（或在 `RuntimeResolver` 支持的显式运行时目录中安装 `deepseek-harness-runtime.json` 元数据 + `runtime/` 内容），即可让 `deepseek-harness4j-sdk-core` 以零配置方式启动它。
 
 ## 验证 SDK
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn install          # 先安装 sdk 与 spring-boot-starter 到本地仓库（供 example 使用）
 mvn test             # 运行 sdk 模块的 JUnit 5 测试套件
 ```
@@ -68,8 +68,8 @@ try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder
 Python 侧以 `package.json` 版本为权威、构建 wheel 包（纯 SDK + 三个平台运行时 wheel，PyPI 发布）的流水线，在 Java 侧由 **Maven** 取代：
 
 ```sh
-cd deepseek-harness4j
-mvn clean install     # 构建并安装 deepseek-harness4j-sdk / -spring-boot-starter / -spring-boot-example
+cd deepseek-harness4j-sdk
+mvn clean install     # 构建并安装 deepseek-harness4j-sdk-core / -spring-boot-starter / -spring-boot-example
 mvn deploy            # 发布到你的 Maven 仓库（Nexus / Artifactory 等）
 ```
 

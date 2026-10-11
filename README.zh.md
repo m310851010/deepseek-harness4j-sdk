@@ -1,15 +1,15 @@
-# deepseek-harness4j
+# deepseek-harness4j-sdk
 
 <p align="center">
   <strong>面向 DeepSeek Harness 的企业级 Java SDK 与 Agent 运行时治理中间件</strong>
 </p>
 
 <p align="center">
-  <a href="https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html"><img src="https://img.shields.io/badge/Java-17%2B-blue?logo=openjdk" alt="Java 17+" /></a>
-  <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-3.x-green?logo=springboot" alt="Spring Boot 3.x" /></a>
+  <a href="https://www.oracle.com/java/technologies/javase/jdk8-downloads.html"><img src="https://img.shields.io/badge/Java-8%2B-blue?logo=openjdk" alt="Java 8+" /></a>
+  <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-2.7.x-green?logo=springboot" alt="Spring Boot 2.7.x" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
   <a href="https://deepseek.com"><img src="https://img.shields.io/badge/DeepSeek-R1%20%2F%20V3-blueviolet" alt="DeepSeek R1/V3" /></a>
-  <a href="https://github.com/geekma/deepseek-harness4j/actions"><img src="https://img.shields.io/badge/Tests-116%2F116%20Passing-brightgreen" alt="Tests 116/116" /></a>
+  <a href="https://github.com/m310851010/deepseek-harness4j-sdk/actions"><img src="https://img.shields.io/badge/Tests-116%2F116%20Passing-brightgreen" alt="Tests 116/116" /></a>
 </p>
 
 <p align="center">
@@ -25,9 +25,9 @@
 
 [English](README.md) | [中文说明](README.zh.md)
 
-**deepseek-harness4j** 是对标官方 [DeepSeek Harness (`dsh`)](https://github.com/deepseek-ai/deepseek-harness) 的企业级 Java SDK 与 Agent 运行时治理框架。它通过基于 stdio 的换行分隔 JSON-RPC 2.0 协议，以亚毫秒级进程 IPC 延迟无缝驱动原生 Agent 内核。
+**deepseek-harness4j-sdk** 是对标官方 [DeepSeek Harness (`dsh`)](https://github.com/deepseek-ai/deepseek-harness) 的企业级 Java SDK 与 Agent 运行时治理框架。它通过基于 stdio 的换行分隔 JSON-RPC 2.0 协议，以亚毫秒级进程 IPC 延迟无缝驱动原生 Agent 内核。
 
-为 Java 17+ 和 Spring Boot 3+ 生态提供 DeepSeek-R1 / V3 思维链（CoT）推理提取、纯 Java 离线 Zstd 轨迹分析引擎、Reactive 响应式 Token 流式推流、Java 本地工具桥接（`@HarnessTool`）以及工业级 OpenTelemetry / Langfuse 可观测性导出。
+为 Java 8+ 和 Spring Boot 2.7+ 生态提供 DeepSeek-R1 / V3 思维链（CoT）推理提取、纯 Java 离线 Zstd 轨迹分析引擎、Reactive 响应式 Token 流式推流、Java 本地工具桥接（`@HarnessTool`）以及工业级 OpenTelemetry / Langfuse 可观测性导出。
 
 ---
 
@@ -40,7 +40,7 @@
 - 🛡️ **类型安全 Cordis DSL 与 Minimal Benchmark 工厂**: 提供强类型 `CordisConfig` 与 `SandboxPolicy` 构造器，支持一行代码创建专用于 SWE-bench 的 `createMinimal()` 基准评测 Agent。
 - 🔌 **Java 本地 Tool 扩展注册**: 无需编写 TypeScript 插件，使用 `@HarnessTool` 与 `@Param` 即可将 Spring Bean 或任意 Java 方法秒级注册为 Agent 工具。
 - 📊 **工业级企业可观测性**: 原生内置 OpenTelemetry GenAI 语义约定与 Langfuse APM 结构导出器。
-- 🍃 **开箱即用的 Spring Boot 3 Starter**: 自动装配、属性绑定与高阶 `DeepSeekHarnessTemplate` 门面代理。
+- 🍃 **开箱即用的 Spring Boot 2.7 Starter**: 自动装配、属性绑定与高阶 `DeepSeekHarnessTemplate` 门面代理。
 
 ---
 
@@ -53,17 +53,17 @@
 ```xml
 <dependency>
     <groupId>com.deepseek-ai</groupId>
-    <artifactId>deepseek-harness4j-sdk</artifactId>
+    <artifactId>deepseek-harness4j-sdk-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
 
-或在 Spring Boot 3 项目中引入 Starter：
+或在 Spring Boot 2.7+ 项目中引入 Starter：
 
 ```xml
 <dependency>
     <groupId>com.deepseek-ai</groupId>
-    <artifactId>deepseek-harness4j-spring-boot-starter</artifactId>
+    <artifactId>deepseek-harness4j-sdk-spring-boot-starter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -209,7 +209,7 @@ Map<String, Object> langfuseTrace = LangfuseExporter.exportTrace(result, "securi
 
 ## 🍃 Spring Boot 集成
 
-在 Spring Boot 3.x 项目中添加 `deepseek-harness4j-spring-boot-starter`：
+在 Spring Boot 2.7.x 项目中添加 `deepseek-harness4j-sdk-spring-boot-starter`：
 
 ### `application.yml`
 
@@ -255,7 +255,7 @@ public class AgentController {
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                       Java SDK (deepseek-harness4j)                          │
+│                       Java SDK (deepseek-harness4j-sdk)                          │
 │                                                                             │
 │  [Java 客户端与治理层]                                                       │
 │  ├── 子进程生命周期守护 (ProcessBuilder + 环形滚动 Stderr 缓冲区)             │
@@ -267,7 +267,7 @@ public class AgentController {
 │  ├── 纯 Java 离线 SessionLog 引擎 (Zstd 逐帧流式解压, Fork 分支, 检索)       │
 │  ├── Java 本地 Tool 扩展注册中心 (@HarnessTool / 反射执行)                   │
 │  ├── 类型安全 Cordis DSL (CordisConfig, SandboxPolicy, createMinimal)        │
-│  └── 企业级生态集成 (Spring Boot 3, OpenTelemetry, Langfuse)                 │
+│  └── 企业级生态集成 (Spring Boot 2.7, OpenTelemetry, Langfuse)               │
 │                                                                             │
 │                     │ stdio (换行符分隔 JSON-RPC 2.0)                        │
 │                     ▼                                                       │
@@ -288,8 +288,8 @@ public class AgentController {
 
 ## 📚 文档导航
 
-- 📖 **[DeepSeek Harness 使用指南 (中文)](deepseek-harness4j-使用指南.md)**: 完整架构剖析、自定义模型接入与生产级配置深度指南。
-- 📖 **[DeepSeek Harness User Guide (English)](deepseek-harness4j-user-guide.en.md)**: Exhaustive runtime architecture and custom endpoint guide.
+- 📖 **[DeepSeek Harness 使用指南 (中文)](deepseek-harness4j-sdk-使用指南.md)**: 完整架构剖析、自定义模型接入与生产级配置深度指南。
+- 📖 **[DeepSeek Harness User Guide (English)](deepseek-harness4j-sdk-user-guide.en.md)**: Exhaustive runtime architecture and custom endpoint guide.
 - 📊 **[五大核心特性 Review 与全景方案报告](docs/review-five-features.md)**: 逐行比对 Python SDK 与 4j 原生增强落地的深度评估报告。
 - 🛠️ **[开发与构建指南](development.md)**: 源码构建、Native 二进制打包接入与测试执行。
 

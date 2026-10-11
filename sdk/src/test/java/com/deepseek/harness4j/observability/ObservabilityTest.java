@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.observability;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.RunResult;
 import org.junit.jupiter.api.Test;
 
@@ -14,17 +16,17 @@ class ObservabilityTest {
 
     @Test
     void test_langfuse_and_otel_trace_export() {
-        List<Map<String, Object>> events = List.of(
-                Map.of("type", "assistant/chunk", "data", Map.of("chunk", Map.of("type", "reasoning-delta", "text", "CoT step 1"))),
-                Map.of("type", "tool/call", "time", 1000L, "data", Map.of("callId", "c1", "name", "bash", "arguments", "ls")),
-                Map.of("type", "tool/result", "time", 1250L, "data", Map.of("callId", "c1", "message", "file.txt")),
-                Map.of("type", "assistant/message", "data", Map.of(
-                        "content", List.of(Map.of("type", "text", "text", "Done")),
-                        "usage", Map.of("inputTokens", 100, "outputTokens", 50, "reasoningTokens", 30, "cacheReadTokens", 10, "cacheWriteTokens", 0))),
-                Map.of("type", "turn/end", "data", Map.of("reason", Map.of("kind", "completed")))
+        List<Map<String, Object>> events = Jdk8.listOf(
+                Jdk8.mapOf("type", "assistant/chunk", "data", Jdk8.mapOf("chunk", Jdk8.mapOf("type", "reasoning-delta", "text", "CoT step 1"))),
+                Jdk8.mapOf("type", "tool/call", "time", 1000L, "data", Jdk8.mapOf("callId", "c1", "name", "bash", "arguments", "ls")),
+                Jdk8.mapOf("type", "tool/result", "time", 1250L, "data", Jdk8.mapOf("callId", "c1", "message", "file.txt")),
+                Jdk8.mapOf("type", "assistant/message", "data", Jdk8.mapOf(
+                        "content", Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "Done")),
+                        "usage", Jdk8.mapOf("inputTokens", 100, "outputTokens", 50, "reasoningTokens", 30, "cacheReadTokens", 10, "cacheWriteTokens", 0))),
+                Jdk8.mapOf("type", "turn/end", "data", Jdk8.mapOf("reason", Jdk8.mapOf("kind", "completed")))
         );
 
-        RunResult result = new RunResult("sess-123", "Done", "completed", events, List.of(), "/tmp/sessions");
+        RunResult result = new RunResult("sess-123", "Done", "completed", events, Jdk8.listOf(), "/tmp/sessions");
 
         // Langfuse trace export
         Map<String, Object> langfuse = LangfuseExporter.exportTrace(result, "test-trace");

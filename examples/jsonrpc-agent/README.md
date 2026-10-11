@@ -1,4 +1,4 @@
-# jsonrpc-agent（deepseek-harness4j Java 示例）
+# jsonrpc-agent（deepseek-harness4j-sdk Java 示例）
 
 [English](README.en.md) | 中文
 
@@ -40,7 +40,7 @@
 它组合了内置运行时所需的本地 PTY、裸 `fs-local` 后端、供持久 Bash 使用的 danger-full-access 策略，以及未压缩的 JSONL 持久化。Bash 和编辑器绝对路径可以修改运行时进程有权访问的任何路径，因此只能针对可丢弃的 checkout 或容器运行该变体。持久 PTY 需要 POSIX 终端环境，因此不适用于 Windows agent 接口。
 
 `MinimalAgent`（Java）通过 SDK 运行该组合，并把 `DSH_MODEL` 作为默认模型。运行方式（需先安装运行时载体，见 `development.md`）：```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 export DEEPSEEK_API_KEY=sk-xxx
 mvn -q -pl sdk exec:java \
   -Dexec.mainClass=com.deepseek.harness4j.examples.MinimalAgent \

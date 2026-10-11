@@ -1,4 +1,4 @@
-# deepseek-harness4j 测试报告（Test Report）
+# deepseek-harness4j-sdk 测试报告（Test Report）
 
 [English](test-report.en.md) | 中文
 
@@ -293,7 +293,7 @@
 ## 4. 重新生成报告
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn -pl sdk test                          # 重新运行测试（surefire 报告在 sdk/target/surefire-reports/）
 mvn -pl sdk surefire-report:report        # 生成 HTML 报告（sdk/target/site/surefire-report.html）
 # 本 markdown 报告由脚本从 surefire XML 生成；映射表见上文 §3

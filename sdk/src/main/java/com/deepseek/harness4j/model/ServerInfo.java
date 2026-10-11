@@ -63,9 +63,10 @@ public final class ServerInfo {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ServerInfo that)) {
+        if (!(o instanceof ServerInfo)) {
             return false;
         }
+        ServerInfo that = (ServerInfo) o;
         return Objects.equals(name, that.name) && Objects.equals(version, that.version);
     }
 

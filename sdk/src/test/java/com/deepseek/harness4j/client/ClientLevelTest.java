@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.client;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.DeepSeekHarnessConfig;
 import com.deepseek.harness4j.error.HarnessTimeoutException;
 import com.deepseek.harness4j.error.JsonRpcException;
@@ -12,6 +14,7 @@ import com.deepseek.harness4j.runtime.RuntimeResolver;
 import com.deepseek.harness4j.test.FakeRuntime;
 import com.deepseek.harness4j.test.TestRuntimes;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -63,7 +66,7 @@ class ClientLevelTest {
             InitializeResponse init = client.initialize("/workspace", "deepseek-official", "dsagent", null);
             assertEquals("fake-runtime", init.serverInfo().name());
 
-            client.sessionPrompt("main", List.of(Map.of("type", "text", "text", "fix it")), null, null);
+            client.sessionPrompt("main", Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "fix it")), null, null);
             Notification notification = client.nextNotification();
             assertEquals("llm/request", notification.method());
             assertEquals("req-1", notification.payload().get("requestId"));
@@ -82,8 +85,8 @@ class ClientLevelTest {
             assertEquals("llm.request", request.method());
             assertEquals("req-1", request.payload().get("requestId"));
 
-            client.respond(request.id(), Map.of("content_blocks",
-                    List.of(Map.of("type", "text", "text", "done"))));
+            client.respond(request.id(), Jdk8.mapOf("content_blocks",
+                    Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "done"))));
             Notification notification = client.nextNotification();
             assertEquals("response/seen", notification.method());
             Map<String, Object> result = (Map<String, Object>) notification.payload().get("result");
@@ -106,7 +109,7 @@ class ClientLevelTest {
         HarnessConfig config = HarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "sleep-forever"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "sleep-forever"))
                 .requestTimeoutSeconds(1.5)
                 .build();
         try (HarnessClient client = new HarnessClient(config)) {
@@ -126,7 +129,7 @@ class ClientLevelTest {
         HarnessConfig config = HarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "ignore-sigterm"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "ignore-sigterm"))
                 .shutdownTimeoutSeconds(0.1)
                 .build();
         HarnessClient client = new HarnessClient(config);
@@ -210,7 +213,7 @@ class ClientLevelTest {
     void test_client_serializes_concurrent_writes() throws Exception {
         Path seen = tmp.resolve("seen.jsonl");
         try (HarnessClient client = new HarnessClient(TestRuntimes.fakeConfig(
-                "seen-writes", tmp, Map.of("SEEN", seen.toString())))) {
+                "seen-writes", tmp, Jdk8.mapOf("SEEN", seen.toString())))) {
             client.start();
             client.initialize("/workspace", "deepseek-official", "dsagent", null);
             List<Thread> threads = new java.util.ArrayList<>();
@@ -219,7 +222,7 @@ class ClientLevelTest {
                 int i = index;
                 Thread thread = new Thread(() -> {
                     try {
-                        client.notify("notice-" + i, Map.of("index", i));
+                        client.notify("notice-" + i, Jdk8.mapOf("index", i));
                     } finally {
                         latch.countDown();
                     }
@@ -250,7 +253,7 @@ class ClientLevelTest {
             client.initialize("/workspace", "deepseek-official", "dsagent", null);
             IllegalArgumentException exc = assertThrows(IllegalArgumentException.class,
                     () -> client.sessionPrompt("main",
-                            List.of(Map.of("type", "text", "text", "fix it")), null, null));
+                            Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "fix it")), null, null));
             assertTrue(exc.getMessage().contains("requires a messageId"));
         }
     }
@@ -260,7 +263,7 @@ class ClientLevelTest {
         HarnessConfig config = HarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "tick"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "tick"))
                 .build();
         try (HarnessClient client = new HarnessClient(config)) {
             client.start();
@@ -274,19 +277,22 @@ class ClientLevelTest {
                 client.notify("emit-first", null);
                 IllegalStateException exc = assertThrows(IllegalStateException.class, broken::next);
                 assertEquals("bad notification filter", exc.getMessage());
-                assertEquals(Map.of("source", "emit-first"), healthy.next().payload());
+                assertEquals(Jdk8.mapOf("source", "emit-first"), healthy.next().payload());
                 assertEquals(0, client.notificationsQueue().size());
 
                 client.sessionPrompt("main",
-                        List.of(Map.of("type", "text", "text", "reader still works")), null, null);
+                        Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "reader still works")), null, null);
                 client.notify("emit-second", null);
-                assertEquals(Map.of("source", "emit-second"), healthy.next().payload());
+                assertEquals(Jdk8.mapOf("source", "emit-second"), healthy.next().payload());
             }
         }
     }
 
     @Test
     void test_client_default_launch_uses_bundled_runtime_and_injects_default_config() throws Exception {
+        Assumptions.assumeTrue(supportsPosixPermissions(),
+                "the fake bundled runtime is a POSIX #!/bin/sh wrapper; the launch path "
+                        + "cannot be exercised on Windows");
         // Port of the pytest parametrization "unset" and "empty-counts-as-absent".
         for (String ambientConfig : new String[]{null, ""}) {
             Path envDump = tmp.resolve("env-" + (ambientConfig == null ? "unset" : "empty") + ".json");
@@ -315,11 +321,14 @@ class ClientLevelTest {
 
     @Test
     void test_client_respects_explicit_config_over_bundled_default() throws Exception {
+        Assumptions.assumeTrue(supportsPosixPermissions(),
+                "the fake bundled runtime is a POSIX #!/bin/sh wrapper; the launch path "
+                        + "cannot be exercised on Windows");
         Path envDump = tmp.resolve("env.json");
         installFakeBundledRuntime(envDump);
 
         try (HarnessClient client = new HarnessClient(HarnessConfig.builder()
-                .env(Map.of("ENV_DUMP", envDump.toString(),
+                .env(Jdk8.mapOf("ENV_DUMP", envDump.toString(),
                         "FR_SCENARIO", "bundled",
                         "FR_CP", System.getProperty("java.class.path"),
                         "DSH_CORDIS_CONFIG", "./explicit.yml"))
@@ -340,7 +349,7 @@ class ClientLevelTest {
 
         MissingRuntimeException exc = assertThrows(MissingRuntimeException.class,
                 () -> new HarnessClient().start());
-        assertTrue(exc.getMessage().contains("Install deepseek-harness4j-runtime-bin"));
+        assertTrue(exc.getMessage().contains("Install deepseek-harness4j-sdk-runtime-bin"));
     }
 
     /**
@@ -354,11 +363,11 @@ class ClientLevelTest {
         Path runtimeDir = tmp.resolve("bundled-runtime");
         Path runtime = runtimeDir.resolve("runtime");
         Files.createDirectories(runtime);
-        Files.writeString(runtimeDir.resolve(RuntimeResolver.PACKAGE_METADATA_FILENAME),
-                "{\"name\":\"deepseek-harness4j-runtime-bin\",\"version\":\"0.0.1\"}\n");
+        Jdk8.writeString(runtimeDir.resolve(RuntimeResolver.PACKAGE_METADATA_FILENAME),
+                "{\"name\":\"deepseek-harness4j-sdk-runtime-bin\",\"version\":\"0.0.1\"}\n");
 
         Path defaultConfig = runtime.resolve("cordis.yml");
-        Files.writeString(defaultConfig,
+        Jdk8.writeString(defaultConfig,
                 "- id: sdk-jsonrpc-server\n"
                         + "  name: '@deepseek-ai/dsh-sdk-jsonrpc-server'\n"
                         + "- id: agent-core\n"
@@ -369,13 +378,13 @@ class ClientLevelTest {
                         + "  name: '@deepseek-ai/dsh-session-checkpoint-policy'\n");
 
         Path executable = runtime.resolve("dsh-jsonrpc-agent-pkg-" + currentPlatformTag());
-        Files.writeString(executable,
+        Jdk8.writeString(executable,
                 "#!/bin/sh\n"
                         + "exec java -cp \"$FR_CP\" " + FakeRuntime.class.getName() + "\n");
         setExecutable(executable);
         if (currentPlatformTag().startsWith("macos-")) {
             Path helper = runtime.resolve(executable.getFileName() + "-spawn-helper");
-            Files.writeString(helper, "#!/bin/sh\n");
+            Jdk8.writeString(helper, "#!/bin/sh\n");
             setExecutable(helper);
         }
 
@@ -385,14 +394,25 @@ class ClientLevelTest {
     }
 
     private static void setExecutable(Path path) throws Exception {
-        Files.setPosixFilePermissions(path, EnumSet.of(
-                PosixFilePermission.OWNER_READ,
-                PosixFilePermission.OWNER_WRITE,
-                PosixFilePermission.OWNER_EXECUTE,
-                PosixFilePermission.GROUP_READ,
-                PosixFilePermission.GROUP_EXECUTE,
-                PosixFilePermission.OTHERS_READ,
-                PosixFilePermission.OTHERS_EXECUTE));
+        if (java.nio.file.FileSystems.getDefault()
+                .supportedFileAttributeViews().contains("posix")) {
+            Files.setPosixFilePermissions(path, EnumSet.of(
+                    PosixFilePermission.OWNER_READ,
+                    PosixFilePermission.OWNER_WRITE,
+                    PosixFilePermission.OWNER_EXECUTE,
+                    PosixFilePermission.GROUP_READ,
+                    PosixFilePermission.GROUP_EXECUTE,
+                    PosixFilePermission.OTHERS_READ,
+                    PosixFilePermission.OTHERS_EXECUTE));
+        } else {
+            // Windows: no POSIX bits; Files.isExecutable only checks read access there
+            path.toFile().setExecutable(true);
+        }
+    }
+
+    private static boolean supportsPosixPermissions() {
+        return java.nio.file.FileSystems.getDefault()
+                .supportedFileAttributeViews().contains("posix");
     }
 
     private static String currentPlatformTag() {

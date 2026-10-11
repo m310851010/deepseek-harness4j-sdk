@@ -1,7 +1,7 @@
-# deepseek-harness4j 五大核心特性 Review 与全景增强方案报告
+# deepseek-harness4j-sdk 五大核心特性 Review 与全景增强方案报告
 
 > 审查日期: 2026-08-14  
-> 审查范围: 上游 `deepseek-ai/deepseek-harness` Python SDK 与运行时代码/文档 + `deepseek-harness4j` 全部源码、配置、测试与文档  
+> 审查范围: 上游 `deepseek-ai/deepseek-harness` Python SDK 与运行时代码/文档 + `deepseek-harness4j-sdk` 全部源码、配置、测试与文档  
 > 审查方法: 源码逐行比对 + 运行时 JSON-RPC 协议逆向 + 架构边界判定 + 生产级演进方案设计 + 全套 Java 原生增强落地验证
 
 ---
@@ -47,7 +47,7 @@
 - **D** = 未实现且无法使用
 
 **核心研判**:
-1. **架构定位澄清**: `deepseek-harness4j` 的定位是 **Java 企业级高性能客户端与运行时治理中间件**，而非重写整个 TypeScript/Cordis 运行时。
+1. **架构定位澄清**: `deepseek-harness4j-sdk` 的定位是 **Java 企业级高性能客户端与运行时治理中间件**，而非重写整个 TypeScript/Cordis 运行时。
 2. **上游 Python SDK 对齐事实**: 上游 Python SDK (`deepseek_harness`) 同样只实现了基于 stdio JSON-RPC 的客户端封装，同样未在 Python 侧实现 Cordis 插件容器或离线日志解析。
 3. **超越 Python 的增强落地**: Java 侧在 **强类型数据模型（CoT 推理提取、Token 细分计量）**、**离线高性能 Zstd 流式日志解析器**、**Reactive 响应式流式推流（Flow.Publisher）**、**Java 本地工具扩展注册（@HarnessTool / ToolRegistry）**、**OpenTelemetry / Langfuse 可观测性导出**、**类型安全 Cordis DSL** 六大维度上，已全面超越原生 Python SDK，并在 116 个单元/集成测试中得到严格验证。
 
@@ -59,7 +59,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                       Java SDK (deepseek-harness4j)                          │
+│                       Java SDK (deepseek-harness4j-sdk)                          │
 │                                                                             │
 │  [Java 核心职责]                                                             │
 │  ├── 子进程生命周期守护 (ProcessBuilder + Stderr 环形滚动缓冲)                │
@@ -194,7 +194,7 @@
 
 ### 3.1 方案一：纯 Java 离线 SessionLog 引擎 (已落地)
 
-- **实现类**: [SessionLog.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/log/SessionLog.java)
+- **实现类**: [SessionLog.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/log/SessionLog.java)
 - **测试类**: `SessionLogTest` (15 用例全绿)
 - **核心能力**:
   1. 支持 `.jsonl` (Plain) 与 `.jsonl.zstd` (Zstandard) 自动检测与逐帧解压。
@@ -208,7 +208,7 @@
 
 ### 3.2 方案二：增强型高阶数据模型与 CoT/Token 透视 (已落地)
 
-- **实现类**: [RunResult.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/RunResult.java)、[SessionSupport.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/SessionSupport.java)
+- **实现类**: [RunResult.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/RunResult.java)、[SessionSupport.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/SessionSupport.java)
 - **测试类**: `RunResultExtractionTest` (9 用例全绿)
 - **核心字段与方法**:
   - `reasoningContent()`: 提取并拼接 DeepSeek-R1 / V3 的 CoT 思维链。
@@ -219,7 +219,7 @@
 
 ### 3.3 方案三：异步与 Reactive 响应式流架构 (已落地)
 
-- **实现类**: [Session.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/Session.java)、[DeepSeekHarness.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/DeepSeekHarness.java)、[StreamChunk.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/model/StreamChunk.java)
+- **实现类**: [Session.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/Session.java)、[DeepSeekHarness.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/DeepSeekHarness.java)、[StreamChunk.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/model/StreamChunk.java)
 - **测试类**: `StreamingTest` (2 用例全绿)、`SessionResumeAsyncTest` (3 用例全绿)
 - **核心方法**:
   - `runAsync(input)`: 返回 `CompletableFuture<RunResult>`。
@@ -230,7 +230,7 @@
 
 ### 3.4 方案四：Java 本地工具扩展与注册引擎 (已落地)
 
-- **实现类**: [HarnessTool.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/tool/HarnessTool.java)、[Param.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/tool/Param.java)、[ToolRegistry.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/tool/ToolRegistry.java)
+- **实现类**: [HarnessTool.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/tool/HarnessTool.java)、[Param.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/tool/Param.java)、[ToolRegistry.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/tool/ToolRegistry.java)
 - **测试类**: `ToolRegistryTest` (2 用例全绿)
 - **核心能力**:
   - 用 `@HarnessTool` 标注 Java 类的方法，`@Param` 标注参数元数据。
@@ -241,7 +241,7 @@
 
 ### 3.5 方案五：类型安全 Cordis DSL 与 Minimal 工厂 (已落地)
 
-- **实现类**: [CordisConfig.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/cordis/CordisConfig.java)、[SandboxPolicy.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/cordis/SandboxPolicy.java)、[DeepSeekHarness.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/DeepSeekHarness.java)
+- **实现类**: [CordisConfig.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/cordis/CordisConfig.java)、[SandboxPolicy.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/cordis/SandboxPolicy.java)、[DeepSeekHarness.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/DeepSeekHarness.java)
 - **测试类**: `CordisDslTest` (3 用例全绿)
 - **核心能力**:
   - `CordisConfig.builder()` 强类型流式构建 Cordis YAML，支持沙箱策略、压缩模式、插件裁剪与自定义 Persona。
@@ -251,7 +251,7 @@
 
 ### 3.6 方案六：工业级可观测性链路导出 (已落地)
 
-- **实现类**: [LangfuseExporter.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/observability/LangfuseExporter.java)、[OtelTraceExporter.java](file:///Users/mali/Documents/code/deepseek-harness4j/sdk/src/main/java/com/deepseek/harness4j/observability/OtelTraceExporter.java)
+- **实现类**: [LangfuseExporter.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/observability/LangfuseExporter.java)、[OtelTraceExporter.java](file:///Users/mali/Documents/code/deepseek-harness4j-sdk/sdk/src/main/java/com/deepseek/harness4j-sdk/observability/OtelTraceExporter.java)
 - **测试类**: `ObservabilityTest` (1 用例全绿)
 - **核心能力**:
   - `OtelTraceExporter.exportGenAiSpan(result, model)`: 产出符合 OpenTelemetry GenAI Semantic Conventions 的属性 Map。
@@ -280,4 +280,4 @@
 
 1. **真实边界判定**: 4j 的定位是**上游运行时的高性能 Java 客户端与治理框架**。五大特性在 Java 源码层面为客户端透传与编排（0% 重写运行时内核），但通过随包二进制**100% 完整提供并立即可用**。
 2. **全套增强圆满落地**: 截至 2026-08-14，规划的全部 P0-P2 方案（纯 Java 离线 SessionLog 引擎、增强型 CoT/Token 模型、异步与 Reactive 流、Java Tool 注册、Cordis DSL、OpenTelemetry/Langfuse 导出、Spring Boot Template 扩展）已**100% 编写完成并全量测试通过（Maven Reactor 116 个用例全绿）**。
-3. **超越 Python 愿景实现**: `deepseek-harness4j` 在强类型数据模型、离线流式日志分析、响应式 SSE 推流、Java 本地 Tool 注册及企业级可观测性上**全面超越官方 Python SDK**，已成为 Java 生态中驾驭 DeepSeek 大模型与智能体系统的工业级标杆框架。
+3. **超越 Python 愿景实现**: `deepseek-harness4j-sdk` 在强类型数据模型、离线流式日志分析、响应式 SSE 推流、Java 本地 Tool 注册及企业级可观测性上**全面超越官方 Python SDK**，已成为 Java 生态中驾驭 DeepSeek 大模型与智能体系统的工业级标杆框架。

@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.observability;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.RunResult;
 
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public final class OtelTraceExporter {
         Map<String, Object> attributes = new LinkedHashMap<>();
         attributes.put("gen_ai.system", "deepseek");
         attributes.put("gen_ai.request.model", model != null ? model : "deepseek");
-        attributes.put("gen_ai.response.finish_reasons", List.of(result.finishReason() != null ? result.finishReason() : "stop"));
+        attributes.put("gen_ai.response.finish_reasons", Jdk8.listOf(result.finishReason() != null ? result.finishReason() : "stop"));
 
         RunResult.TokenUsage usage = result.tokenUsage();
         attributes.put("gen_ai.usage.input_tokens", usage.promptTokens());

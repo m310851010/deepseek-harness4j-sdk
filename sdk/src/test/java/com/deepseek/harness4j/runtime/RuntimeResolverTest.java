@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.runtime;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -45,7 +47,7 @@ class RuntimeResolverTest {
     void test_default_config_is_shipped_with_the_package() throws Exception {
         Path path = RuntimeResolver.bundledDefaultConfigPath();
         assertEquals(RuntimeResolver.bundledPackageDir().resolve("runtime").resolve("cordis.yml"), path);
-        String config = Files.readString(path);
+        String config = Jdk8.readString(path);
         assertTrue(config.contains("@deepseek-ai/dsh-agent-spine-demo"));
         assertTrue(config.contains("@deepseek-ai/dsh-session-persistence-jsonl"));
         assertTrue(config.contains("@deepseek-ai/dsh-session-checkpoint-policy"));
@@ -84,8 +86,8 @@ class RuntimeResolverTest {
         Path linux = runtimeDir.resolve("dsh-jsonrpc-agent-pkg-linux-x64");
         Files.createFile(linux);
         Files.createFile(runtimeDir.resolve("dsh-jsonrpc-agent-pkg-macos-arm64"));
-        Files.writeString(tmp.resolve(RuntimeResolver.PACKAGE_METADATA_FILENAME),
-                "{\"name\":\"deepseek-harness4j-runtime-bin\",\"version\":\"0.0.1\"}\n");
+        Jdk8.writeString(tmp.resolve(RuntimeResolver.PACKAGE_METADATA_FILENAME),
+                "{\"name\":\"deepseek-harness4j-sdk-runtime-bin\",\"version\":\"0.0.1\"}\n");
         previousRuntimeDir = System.setProperty(
                 RuntimeResolver.RUNTIME_DIR_PROPERTY, tmp.toString());
 

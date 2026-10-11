@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.build;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -24,7 +26,7 @@ class ReleaseVersionTest {
     @Test
     void test_repository_version_matches_root_pom() throws Exception {
         Path pom = tmp.resolve("pom.xml");
-        Files.writeString(pom,
+        Jdk8.writeString(pom,
                 "<project><modelVersion>4.0.0</modelVersion>"
                         + "<groupId>g</groupId><artifactId>a</artifactId>"
                         + "<version>1.2.3</version></project>\n");
@@ -48,7 +50,7 @@ class ReleaseVersionTest {
     @Test
     void test_repository_version_accepts_a_prerelease() throws Exception {
         Path pom = tmp.resolve("pom.xml");
-        Files.writeString(pom,
+        Jdk8.writeString(pom,
                 "<project><modelVersion>4.0.0</modelVersion>"
                         + "<groupId>g</groupId><artifactId>a</artifactId>"
                         + "<version>1.2.3-rc.1</version></project>\n");
@@ -58,7 +60,7 @@ class ReleaseVersionTest {
     @Test
     void test_repository_version_rejects_malformed_versions() throws Exception {
         Path pom = tmp.resolve("pom.xml");
-        Files.writeString(pom,
+        Jdk8.writeString(pom,
                 "<project><modelVersion>4.0.0</modelVersion>"
                         + "<groupId>g</groupId><artifactId>a</artifactId>"
                         + "<version>v1.2</version></project>\n");
@@ -87,7 +89,7 @@ class ReleaseVersionTest {
     @Test
     void test_platform_manifest_rejects_incomplete_entries() throws Exception {
         Path manifest = tmp.resolve("platforms.json");
-        Files.writeString(manifest, "{\"macos-arm64\":{\"tag\":\"macosx_14_0_arm64\"}}\n");
+        Jdk8.writeString(manifest, "{\"macos-arm64\":{\"tag\":\"macosx_14_0_arm64\"}}\n");
         IllegalArgumentException exc = assertThrows(IllegalArgumentException.class,
                 () -> PlatformManifest.loadPlatforms(manifest));
         assertTrue(exc.getMessage().contains("tag and executable fields"));
@@ -95,9 +97,9 @@ class ReleaseVersionTest {
 
     @Test
     void test_runtime_suffixes_match_platform_payloads() {
-        assertEquals(List.of("", "-spawn-helper"),
+        assertEquals(Jdk8.listOf("", "-spawn-helper"),
                 PlatformManifest.runtimeSuffixes("dsh-jsonrpc-agent-pkg-macos-arm64"));
-        assertEquals(List.of(""),
+        assertEquals(Jdk8.listOf(""),
                 PlatformManifest.runtimeSuffixes("dsh-jsonrpc-agent-pkg-linux-x64"));
     }
 }

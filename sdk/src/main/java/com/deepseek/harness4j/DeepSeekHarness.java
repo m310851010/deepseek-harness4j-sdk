@@ -1,5 +1,7 @@
 package com.deepseek.harness4j;
 
+import java.nio.file.Paths;
+
 import com.deepseek.harness4j.client.HarnessClient;
 import com.deepseek.harness4j.client.HarnessConfig;
 import com.deepseek.harness4j.log.SessionLog;
@@ -17,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Flow;
+import com.deepseek.harness4j.util.flow.Publisher;
 import java.util.function.Consumer;
 
 /**
@@ -43,7 +45,7 @@ public final class DeepSeekHarness implements AutoCloseable {
         this.config = config == null ? DeepSeekHarnessConfig.builder().build() : config;
         this.cwd = resolve(config.cwd() != null
                 ? config.cwd()
-                : Path.of("").toAbsolutePath().toString());
+                : Paths.get("").toAbsolutePath().toString());
         String runtimeCwd = config.runtimeCwd() != null ? resolve(config.runtimeCwd()) : cwd;
         Map<String, String> env = new LinkedHashMap<>(config.env());
         if (config.sessionRoot() != null) {
@@ -75,7 +77,7 @@ public final class DeepSeekHarness implements AutoCloseable {
      * (matching upstream {@code minimal.cordis.yml}, ideal for benchmark evals).
      */
     public static DeepSeekHarness createMinimal(String workspace) {
-        return createMinimal(Path.of(workspace));
+        return createMinimal(Paths.get(workspace));
     }
 
     /**
@@ -96,10 +98,10 @@ public final class DeepSeekHarness implements AutoCloseable {
                     "missing classpath resource " + MINIMAL_CONFIG_RESOURCE + " (minimal.cordis.yml)");
         }
         if ("file".equals(resource.getProtocol())) {
-            return Path.of(URI.create(resource.toString()));
+            return Paths.get(URI.create(resource.toString()));
         }
         try {
-            Path target = Files.createTempFile("deepseek-harness4j-minimal-", ".cordis.yml");
+            Path target = Files.createTempFile("deepseek-harness4j-sdk-minimal-", ".cordis.yml");
             try (InputStream in = resource.openStream()) {
                 Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
             }
@@ -238,16 +240,16 @@ public final class DeepSeekHarness implements AutoCloseable {
     }
 
     /**
-     * Return a reactive {@link Flow.Publisher} for streaming chunks.
+     * Return a reactive {@link Publisher} for streaming chunks.
      */
-    public Flow.Publisher<StreamChunk> stream(Object input, String sessionId) {
+    public Publisher<StreamChunk> stream(Object input, String sessionId) {
         return startSession(sessionId).stream(input);
     }
 
     /**
-     * Return a reactive {@link Flow.Publisher} for streaming chunks on a fresh session.
+     * Return a reactive {@link Publisher} for streaming chunks on a fresh session.
      */
-    public Flow.Publisher<StreamChunk> stream(Object input) {
+    public Publisher<StreamChunk> stream(Object input) {
         return stream(input, (String) null);
     }
 
@@ -259,7 +261,7 @@ public final class DeepSeekHarness implements AutoCloseable {
         if (config.sessionRoot() == null) {
             throw new IllegalStateException("sessionRoot must be configured in DeepSeekHarnessConfig to inspect session logs");
         }
-        return Path.of(config.sessionRoot());
+        return Paths.get(config.sessionRoot());
     }
 
     /**
@@ -314,7 +316,7 @@ public final class DeepSeekHarness implements AutoCloseable {
     }
 
     private static String resolve(String path) {
-        Path absolute = Path.of(path).toAbsolutePath().normalize();
+        Path absolute = Paths.get(path).toAbsolutePath().normalize();
         try {
             return absolute.toRealPath().toString();
         } catch (java.io.IOException ignored) {

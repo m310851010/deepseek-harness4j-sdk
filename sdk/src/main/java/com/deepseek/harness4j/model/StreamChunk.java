@@ -13,11 +13,72 @@ import java.util.Map;
  *                     or {@code null}
  * @param notification the raw notification that triggered this chunk
  */
-public record StreamChunk(
-        String type,
-        String text,
-        Map<String, Object> rawEvent,
-        Notification notification) {
+public final class StreamChunk {
+
+    private final String type;
+    private final String text;
+    private final Map<String, Object> rawEvent;
+    private final Notification notification;
+
+    public StreamChunk(
+            String type,
+            String text,
+            Map<String, Object> rawEvent,
+            Notification notification) {
+        this.type = type;
+        this.text = text;
+        this.rawEvent = rawEvent;
+        this.notification = notification;
+    }
+
+    /** The logical chunk type, e.g. {@code "reasoning"} or {@code "content"}. */
+    public String type() {
+        return type;
+    }
+
+    /** Incremental text or formatted content for this chunk (may be empty). */
+    public String text() {
+        return text;
+    }
+
+    /** The underlying event map for {@code session.event} chunks, or {@code null}. */
+    public Map<String, Object> rawEvent() {
+        return rawEvent;
+    }
+
+    /** The raw notification that triggered this chunk. */
+    public Notification notification() {
+        return notification;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof StreamChunk)) {
+            return false;
+        }
+        StreamChunk that = (StreamChunk) o;
+        return java.util.Objects.equals(type, that.type)
+                && java.util.Objects.equals(text, that.text)
+                && java.util.Objects.equals(rawEvent, that.rawEvent)
+                && java.util.Objects.equals(notification, that.notification);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(type, text, rawEvent, notification);
+    }
+
+    @Override
+    public String toString() {
+        return "StreamChunk[type=" + type
+                + ", text=" + text
+                + ", rawEvent=" + rawEvent
+                + ", notification=" + notification
+                + ']';
+    }
 
     public static final String TYPE_REASONING = "reasoning";
     public static final String TYPE_CONTENT = "content";

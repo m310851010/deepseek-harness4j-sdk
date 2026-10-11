@@ -51,8 +51,8 @@ public final class NotificationSubscription implements AutoCloseable {
             Thread.currentThread().interrupt();
             throw new HarnessException("Interrupted while waiting for notification", exc);
         }
-        if (item instanceof Throwable throwable) {
-            rethrow(throwable);
+        if (item instanceof Throwable) {
+            rethrow((Throwable) item);
         }
         return (Notification) item;
     }
@@ -70,8 +70,8 @@ public final class NotificationSubscription implements AutoCloseable {
             if (item == null) {
                 return;
             }
-            if (item instanceof Throwable throwable) {
-                rethrow(throwable);
+            if (item instanceof Throwable) {
+                rethrow((Throwable) item);
             }
             onNotification.accept((Notification) item);
         }
@@ -79,11 +79,11 @@ public final class NotificationSubscription implements AutoCloseable {
 
     @SuppressWarnings("unchecked")
     private static <T extends Throwable> void rethrow(Throwable throwable) throws T {
-        if (throwable instanceof RuntimeException runtime) {
-            throw runtime;
+        if (throwable instanceof RuntimeException) {
+            throw (RuntimeException) throwable;
         }
-        if (throwable instanceof Error error) {
-            throw error;
+        if (throwable instanceof Error) {
+            throw (Error) throwable;
         }
         throw (T) new HarnessException(throwable);
     }

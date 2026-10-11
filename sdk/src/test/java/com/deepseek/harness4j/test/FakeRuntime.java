@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.test;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.nio.file.Paths;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -32,20 +35,25 @@ public final class FakeRuntime {
         PrintStream out = System.out;
 
         switch (scenario) {
-            case "non-json-first" -> out.println("node warning: experimental loader");
-            case "sleep-forever" -> {
+            case "non-json-first":
+                out.println("node warning: experimental loader");
+                break;
+            case "sleep-forever": {
                 System.err.println("bridge is still starting");
                 Thread.sleep(60_000);
                 return;
+            
             }
-            case "crash" -> {
+            case "crash": {
                 System.err.println("fatal bridge exploded");
                 System.exit(42);
                 return;
+            
             }
-            default -> {
+            default: {
                 // fall through to the reader loop
-            }
+            
+            } break;
         }
 
         if ("ignore-sigterm".equals(scenario)) {
@@ -65,7 +73,7 @@ public final class FakeRuntime {
         if ("bundled".equals(scenario)) {
             Map<String, Object> dump = new LinkedHashMap<>();
             dump.put("DSH_CORDIS_CONFIG", System.getenv().get("DSH_CORDIS_CONFIG"));
-            Files.writeString(Path.of(System.getenv("ENV_DUMP")), json(dump));
+            Jdk8.writeString(Paths.get(System.getenv("ENV_DUMP")), json(dump));
         }
 
         try (BufferedReader reader = new BufferedReader(
@@ -73,8 +81,8 @@ public final class FakeRuntime {
             String line;
             while ((line = reader.readLine()) != null) {
                 if ("seen-writes".equals(scenario)) {
-                    java.nio.file.Files.writeString(
-                            Path.of(System.getenv("SEEN")), line + "\n",
+                    Jdk8.writeString(
+                            Paths.get(System.getenv("SEEN")), line + "\n",
                             java.nio.file.StandardOpenOption.CREATE,
                             java.nio.file.StandardOpenOption.APPEND);
                 }
@@ -87,8 +95,8 @@ public final class FakeRuntime {
                 }
                 Object id = message.get("id");
                 Object method = message.get("method");
-                if (method instanceof String methodName) {
-                    handleRequest(scenario, id, methodName, message);
+                if (method instanceof String) {
+                    handleRequest(scenario, id, (String) method, message);
                 } else if (id != null) {
                     handleResponse(scenario, message);
                 }
@@ -101,183 +109,206 @@ public final class FakeRuntime {
         PrintStream out = System.out;
         Map<String, Object> params = paramsOf(message);
         switch (method) {
-            case "initialize" -> {
+            case "initialize": {
                 switch (scenario) {
-                    case "main-turn" -> {
+                    case "main-turn": {
                         writeDump(System.getenv("ENV_DUMP"), envDump());
                         writeDump(System.getenv("INIT_DUMP"), params);
-                    }
-                    case "capture-cwd" -> {
+                    
+                    } break;
+                    case "capture-cwd": {
                         Map<String, Object> capture = new LinkedHashMap<>();
                         capture.put("process", System.getProperty("user.dir"));
                         capture.put("environment", System.getenv("DSH_CWD"));
                         capture.put("wire", params.get("cwd"));
-                        Files.writeString(Path.of(System.getenv("CAPTURE")), json(capture));
-                    }
-                    case "initialize-error" -> {
+                        Jdk8.writeString(Paths.get(System.getenv("CAPTURE")), json(capture));
+                    
+                    } break;
+                    case "initialize-error": {
                         respondError(id, -32000, "bad initialize");
                         return;
+                    
                     }
-                    default -> {
+                    default: {
                         // plain initialize response
-                    }
+                    
+                    } break;
                 }
-                respond(id, Map.of("serverInfo", Map.of("name", fakeName(scenario))));
+                respond(id, Jdk8.mapOf("serverInfo", Jdk8.mapOf("name", fakeName(scenario))));
                 if ("bridge-llm".equals(scenario)) {
                     emit("{\"jsonrpc\":\"2.0\",\"id\":\"bridge-req-1\",\"method\":\"llm.request\","
                             + "\"params\":{\"requestId\":\"req-1\",\"sessionId\":\"main\","
                             + "\"model\":\"dsagent\",\"messages\":[]}}");
                 }
-            }
-            case "session/prompt" -> {
+            
+            } break;
+            case "session/prompt": {
                 switch (scenario) {
-                    case "main-turn" -> {
+                    case "main-turn": {
                         emit(inbox(params));
                         emit(status(params, "running"));
-                        respond(id, Map.of("messageId", "message-1"));
-                        emit(assistantMessage(params, Map.of("role", "assistant", "content",
-                                List.of(Map.of("type", "text", "text", "hello from runtime")))));
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
+                        emit(assistantMessage(params, Jdk8.mapOf("role", "assistant", "content",
+                                Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "hello from runtime")))));
                         emit(turnEnd(params, 1, "completed"));
                         emit(turnEnd(params, 2, "max-tokens"));
                         emit(status(params, "idle"));
-                    }
-                    case "callback-subagent" -> {
+                    
+                    } break;
+                    case "callback-subagent": {
                         emit(inbox(params));
                         emit(status(params, "running"));
-                        respond(id, Map.of("messageId", "message-1"));
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
                         emit(subagent("subagent.started", "main", "child", null));
                         emit(status(params, "idle"));
-                    }
-                    case "malformed-turn-end" -> {
+                    
+                    } break;
+                    case "malformed-turn-end": {
                         emit(inbox(params));
-                        respond(id, Map.of("messageId", "message-1"));
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
                         emit(turnEnd(params, 1, null));
                         emit(status(params, "idle"));
-                    }
-                    case "subagent-finished" -> {
+                    
+                    } break;
+                    case "subagent-finished": {
                         emit(inbox(params));
                         emit(status(params, "running"));
-                        respond(id, Map.of("messageId", "message-1"));
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
                         emit(subagent("subagent.started", "main", "child", null));
                         emit(subagent("subagent.finished", "main", "child", "completed"));
                         emit(status(params, "idle"));
-                    }
-                    case "nested-tree" -> {
+                    
+                    } break;
+                    case "nested-tree": {
                         String root = String.valueOf(params.get("sessionId"));
                         emit(inbox(params));
                         emit(status(params, "running"));
-                        respond(id, Map.of("messageId", "message-1"));
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
                         emit(subagent("subagent.started", root, "child", null));
-                        emit(sessionEvent("child", Map.of("type", "assistant/message",
-                                "data", Map.of("content",
-                                        List.of(Map.of("type", "text", "text", "child response"))))));
+                        emit(sessionEvent("child", Jdk8.mapOf("type", "assistant/message",
+                                "data", Jdk8.mapOf("content",
+                                        Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "child response"))))));
                         emit(subagent("subagent.started", "child", "grandchild", null));
-                        emit(sessionEvent("grandchild", Map.of("type", "assistant/message",
-                                "data", Map.of("content",
-                                        List.of(Map.of("type", "text", "text", "grandchild response"))))));
+                        emit(sessionEvent("grandchild", Jdk8.mapOf("type", "assistant/message",
+                                "data", Jdk8.mapOf("content",
+                                        Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "grandchild response"))))));
                         emit(subagent("subagent.finished", "child", "grandchild", null));
                         emit(subagent("subagent.finished", root, "child", null));
-                        emit(sessionEvent(root, Map.of("type", "assistant/message",
-                                "data", Map.of("content",
-                                        List.of(Map.of("type", "text", "text", "root response"))))));
+                        emit(sessionEvent(root, Jdk8.mapOf("type", "assistant/message",
+                                "data", Jdk8.mapOf("content",
+                                        Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "root response"))))));
                         emit(status(params, "idle"));
-                    }
-                    case "other-session" -> {
-                        emit(assistantMessage(Map.of("sessionId", "other"), Map.of("content",
-                                List.of(Map.of("type", "text", "text", "wrong session")))));
-                        emit(status(Map.of("sessionId", "other"), "idle"));
+                    
+                    } break;
+                    case "other-session": {
+                        emit(assistantMessage(Jdk8.mapOf("sessionId", "other"), Jdk8.mapOf("content",
+                                Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "wrong session")))));
+                        emit(status(Jdk8.mapOf("sessionId", "other"), "idle"));
                         emit(inbox(params));
                         emit(status(params, "running"));
-                        respond(id, Map.of("messageId", "message-1"));
-                        emit(assistantMessage(params, Map.of("content",
-                                List.of(Map.of("type", "text", "text", "right session")))));
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
+                        emit(assistantMessage(params, Jdk8.mapOf("content",
+                                Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "right session")))));
                         emit(status(params, "idle"));
-                    }
-                    case "minimal-turn" -> {
+                    
+                    } break;
+                    case "minimal-turn": {
                         emit(inbox(params));
                         emit(status(params, "running"));
-                        respond(id, Map.of("messageId", "message-1"));
-                        emit(assistantMessage(params, Map.of("content",
-                                List.of(Map.of("type", "text", "text", "ok")))));
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
+                        emit(assistantMessage(params, Jdk8.mapOf("content",
+                                Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "ok")))));
                         emit(status(params, "idle"));
-                    }
-                    case "streaming-turn" -> {
+                    
+                    } break;
+                    case "streaming-turn": {
                         emit(inbox(params));
                         emit(status(params, "running"));
-                        respond(id, Map.of("messageId", "message-1"));
-                        emit(sessionEvent(String.valueOf(params.get("sessionId")), Map.of(
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
+                        emit(sessionEvent(String.valueOf(params.get("sessionId")), Jdk8.mapOf(
                                 "type", "assistant/chunk",
-                                "data", Map.of("chunk", Map.of("type", "reasoning-delta", "text", "thinking...")))));
-                        emit(sessionEvent(String.valueOf(params.get("sessionId")), Map.of(
+                                "data", Jdk8.mapOf("chunk", Jdk8.mapOf("type", "reasoning-delta", "text", "thinking...")))));
+                        emit(sessionEvent(String.valueOf(params.get("sessionId")), Jdk8.mapOf(
                                 "type", "assistant/chunk",
-                                "data", Map.of("chunk", Map.of("type", "text-delta", "text", "streaming hello")))));
-                        emit(sessionEvent(String.valueOf(params.get("sessionId")), Map.of(
+                                "data", Jdk8.mapOf("chunk", Jdk8.mapOf("type", "text-delta", "text", "streaming hello")))));
+                        emit(sessionEvent(String.valueOf(params.get("sessionId")), Jdk8.mapOf(
                                 "type", "tool/call",
-                                "data", Map.of("callId", "call-1", "name", "bash", "arguments", "echo hi"))));
-                        emit(sessionEvent(String.valueOf(params.get("sessionId")), Map.of(
+                                "data", Jdk8.mapOf("callId", "call-1", "name", "bash", "arguments", "echo hi"))));
+                        emit(sessionEvent(String.valueOf(params.get("sessionId")), Jdk8.mapOf(
                                 "type", "tool/result",
-                                "data", Map.of("callId", "call-1", "message", "hi\n"))));
-                        emit(assistantMessage(params, Map.of("content",
-                                List.of(Map.of("type", "text", "text", "streaming hello")))));
+                                "data", Jdk8.mapOf("callId", "call-1", "message", "hi\n"))));
+                        emit(assistantMessage(params, Jdk8.mapOf("content",
+                                Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "streaming hello")))));
                         emit(turnEnd(params, 1, "completed"));
                         emit(status(params, "idle"));
-                    }
-                    case "late-idle" -> {
+                    
+                    } break;
+                    case "late-idle": {
                         int turn = nextTurn();
                         String messageId = "message-" + turn;
                         emit(inbox(params, messageId));
                         emit(status(params, "running"));
-                        respond(id, Map.of("messageId", messageId));
+                        respond(id, Jdk8.mapOf("messageId", messageId));
                         if (turn == 1) {
-                            emit(assistantMessage(params, Map.of("content",
-                                    List.of(Map.of("type", "text", "text", "first")))));
+                            emit(assistantMessage(params, Jdk8.mapOf("content",
+                                    Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "first")))));
                             emit(status(params, "idle"));
                         } else {
                             Thread.sleep(50);
-                            emit(assistantMessage(params, Map.of("content",
-                                    List.of(Map.of("type", "text", "text", "second")))));
+                            emit(assistantMessage(params, Jdk8.mapOf("content",
+                                    Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "second")))));
                             emit(status(params, "idle"));
                         }
-                    }
-                    case "bridge-llm" -> {
-                        emit(notification("llm/request", Map.of(
+                    
+                    } break;
+                    case "bridge-llm": {
+                        emit(notification("llm/request", Jdk8.mapOf(
                                 "requestId", "req-1",
                                 "sessionId", params.get("sessionId"),
                                 "model", "dsagent",
-                                "messages", List.of())));
-                        respond(id, Map.of("messageId", "message-1"));
-                    }
-                    case "tick" -> {
-                        respond(id, Map.of("messageId", "message-1"));
-                    }
-                    case "reject-prompt" -> {
-                        respond(id, Map.of("accepted", false));
-                    }
-                    default -> {
-                        respond(id, Map.of("messageId", "message-1"));
-                    }
+                                "messages", Jdk8.listOf())));
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
+                    
+                    } break;
+                    case "tick": {
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
+                    
+                    } break;
+                    case "reject-prompt": {
+                        respond(id, Jdk8.mapOf("accepted", false));
+                    
+                    } break;
+                    default: {
+                        respond(id, Jdk8.mapOf("messageId", "message-1"));
+                    
+                    } break;
                 }
-            }
-            case "emit-first", "emit-second" -> {
-                emit(notification("tick", Map.of("source", method)));
-            }
-            case "shutdown" -> {
+            
+            } break;
+            case "emit-first":
+            case "emit-second": {
+                emit(notification("tick", Jdk8.mapOf("source", method)));
+
+            } break;
+            case "shutdown": {
                 if ("ignore-sigterm".equals(scenario)) {
                     Thread.sleep(60_000);
                     return;
                 }
-                respond(id, Map.of());
+                respond(id, Jdk8.mapOf());
                 return;
+            
             }
-            default -> {
+            default: {
                 // ignore unknown methods
-            }
+            
+            } break;
         }
     }
 
     private static void handleResponse(String scenario, Map<String, Object> message) {
         if ("bridge-llm".equals(scenario)) {
-            emit(notification("response/seen", Map.of("result", message.get("result"))));
+            emit(notification("response/seen", Jdk8.mapOf("result", message.get("result"))));
         }
     }
 
@@ -290,7 +321,7 @@ public final class FakeRuntime {
 
     private static void writeDump(String path, Object value) throws Exception {
         if (path != null) {
-            Files.writeString(Path.of(path), json(value));
+            Jdk8.writeString(Paths.get(path), json(value));
         }
     }
 
@@ -324,14 +355,14 @@ public final class FakeRuntime {
     }
 
     private static Map<String, Object> inbox(Map<String, Object> params, String messageId) {
-        return sessionEvent(String.valueOf(params.get("sessionId")), Map.of(
+        return sessionEvent(String.valueOf(params.get("sessionId")), Jdk8.mapOf(
                 "type", "agent/inbox/spliced",
-                "data", Map.of("target", "next-turn", "start", 0,
-                        "inserted", List.of(Map.of("id", messageId)))));
+                "data", Jdk8.mapOf("target", "next-turn", "start", 0,
+                        "inserted", Jdk8.listOf(Jdk8.mapOf("id", messageId)))));
     }
 
     private static Map<String, Object> status(Map<String, Object> params, String status) {
-        return notification("session.status", Map.of(
+        return notification("session.status", Jdk8.mapOf(
                 "sessionId", params.get("sessionId"),
                 "status", status));
     }
@@ -339,13 +370,13 @@ public final class FakeRuntime {
     private static Map<String, Object> assistantMessage(Map<String, Object> params,
                                                        Map<String, Object> data) {
         return sessionEvent(String.valueOf(params.get("sessionId")),
-                Map.of("type", "assistant/message", "data", data));
+                Jdk8.mapOf("type", "assistant/message", "data", data));
     }
 
     private static Map<String, Object> turnEnd(Map<String, Object> params, int turn, String kind) {
-        Map<String, Object> reason = kind == null ? Map.of() : Map.of("kind", kind);
+        Map<String, Object> reason = kind == null ? Jdk8.mapOf() : Jdk8.mapOf("kind", kind);
         return sessionEvent(String.valueOf(params.get("sessionId")),
-                Map.of("type", "turn/end", "data", Map.of("turn", turn, "reason", reason)));
+                Jdk8.mapOf("type", "turn/end", "data", Jdk8.mapOf("turn", turn, "reason", reason)));
     }
 
     private static Map<String, Object> subagent(String method, String parent, String child,
@@ -361,7 +392,7 @@ public final class FakeRuntime {
     }
 
     private static Map<String, Object> sessionEvent(String sessionId, Object event) {
-        return notification("session.event", Map.of("sessionId", sessionId, "event", event));
+        return notification("session.event", Jdk8.mapOf("sessionId", sessionId, "event", event));
     }
 
     private static Map<String, Object> notification(String method, Map<String, Object> params) {

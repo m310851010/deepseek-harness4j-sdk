@@ -2,16 +2,16 @@
 
 [English](README.en.md) | 中文
 
-通过 JSON-RPC stdio 驱动 DeepSeek Harness 的 Java 子进程 SDK（`deepseek-harness4j-sdk`）。这是上游 `deepseek-harness` 仓库中 Python SDK（`python/sdk`，模块名 `deepseek_harness`）的逐行 Java 移植。运行时继承常规的 DeepSeek Harness 环境变量（如 `DEEPSEEK_BASE_URL` 与 `DEEPSEEK_API_KEY`），调用方可以直接使用真实模型端点，也可以把这些变量指向本地代理。
+通过 JSON-RPC stdio 驱动 DeepSeek Harness 的 Java 子进程 SDK（`deepseek-harness4j-sdk-core`）。这是上游 `deepseek-harness` 仓库中 Python SDK（`python/sdk`，模块名 `deepseek_harness`）的逐行 Java 移植。运行时继承常规的 DeepSeek Harness 环境变量（如 `DEEPSEEK_BASE_URL` 与 `DEEPSEEK_API_KEY`），调用方可以直接使用真实模型端点，也可以把这些变量指向本地代理。
 
 ## 安装
 
-从 Maven 中央仓库引入 `deepseek-harness4j-sdk` 依赖（Java 17+）：
+从 Maven 中央仓库引入 `deepseek-harness4j-sdk-core` 依赖（Java 8+）：
 
 ```xml
 <dependency>
   <groupId>com.deepseek-ai</groupId>
-  <artifactId>deepseek-harness4j-sdk</artifactId>
+  <artifactId>deepseek-harness4j-sdk-core</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -19,7 +19,7 @@
 或 Gradle：
 
 ```groovy
-implementation 'com.deepseek-ai:deepseek-harness4j-sdk:0.0.1-SNAPSHOT'
+implementation 'com.deepseek-ai:deepseek-harness4j-sdk-core:0.0.1-SNAPSHOT'
 ```
 
 使用前请先为运行时安装一个可用载体（见 [sdk-runtime README](../sdk-runtime/README.md)）：生产环境的单文件 `dsh-jsonrpc-agent` 可执行程序，或开发模式的 `node` 闭包；也可以通过 `HarnessConfig.runtimeBin` / `launchArgsOverride` 显式指定通道。常规入口因此不需要传可执行文件参数：

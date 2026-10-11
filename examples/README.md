@@ -1,4 +1,4 @@
-# Examples（deepseek-harness4j 示例）
+# Examples（deepseek-harness4j-sdk 示例）
 
 [English](README.en.md) | 中文
 
@@ -11,7 +11,7 @@ DeepSeek Harness 主要接口与扩展点的可运行演示。每个子目录拥
 一个通过 SDK 与 JSON-RPC 驱动的无人值守编码 agent。上游是 `minimal.py`（Python）；本仓库对应物是 `MinimalAgent`（`com.deepseek.harness4j.examples.MinimalAgent`）。示例参考见 [jsonrpc-agent/README.md](jsonrpc-agent/README.md)。
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn -q -pl sdk exec:java \
   -Dexec.mainClass=com.deepseek.harness4j.examples.MinimalAgent \
   -Dexec.args="--workspace /绝对/路径/工作区 --session-root /绝对/路径/会话 --session-id example-001 '你的任务'"

@@ -1,4 +1,4 @@
-# Python → Java line-by-line migration notes (deepseek-harness4j)
+# Python → Java line-by-line migration notes (deepseek-harness4j-sdk)
 
 [中文](java-migration-notes.md) | English
 
@@ -98,7 +98,7 @@ This document records the syntax, runtime, and ecosystem differences encountered
 
 > The Python SDK has no framework integration; the Java port adds a thin Spring layer so the SDK is usable directly in the Java stack.
 
-### 9.1 Spring Boot (starter module `deepseek-harness4j-spring-boot-starter`)
+### 9.1 Spring Boot (starter module `deepseek-harness4j-sdk-spring-boot-starter`)
 
 - `@AutoConfiguration` + `@ConditionalOnProperty(deepseek.harness.enabled, matchIfMissing=true)`.
 - `@ConfigurationProperties(prefix = "deepseek.harness")` → `DeepSeekHarnessProperties`, mirroring `DeepSeekHarnessConfig` (`provider`/`model`/`maxTokens`/`cwd`/`sessionRoot`/`cordis`/`runtimeBin`/`requestTimeoutSeconds`/`shutdownTimeoutSeconds`/`baseUrl`/`apiKey`/`env`, etc.).
@@ -131,7 +131,7 @@ public class MyService {
 - Keep secrets out of the config server: continue to inject `DEEPSEEK_API_KEY` via environment or a secret manager — the SDK inherits the parent process environment by default.
 - For multi-instance/route scenarios, make `provider`/`model` runtime-context variables overridable by downstream configuration.
 
-### 9.3 Spring MVC (example module `deepseek-harness4j-spring-boot-example`)
+### 9.3 Spring MVC (example module `deepseek-harness4j-sdk-spring-boot-example`)
 
 - Runnable example: `DeepSeekHarness4jExampleApplication` + `HarnessController`.
 - `@PostMapping("/api/harness/run")` accepts `{input, sessionId}` → calls `template.run(input, sessionId, null)` → returns `RunResult` as JSON.

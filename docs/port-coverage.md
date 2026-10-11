@@ -1,8 +1,8 @@
-# deepseek-harness4j 移植覆盖清单（Port Coverage Checklist）
+# deepseek-harness4j-sdk 移植覆盖清单（Port Coverage Checklist）
 
 [English](port-coverage.en.md) | 中文
 
-本文件是**全局核对清单**：把上游 `deepseek-harness` 中**每一个 `.py` 文件、每一个 `.md` 文件**（以及相关的非代码文件）与 `deepseek-harness4j` 的 Java 对应物一一核对，确保**无遗漏**。核对方法：对上游做 `find . -name '*.py' -name '*.md'` 全量枚举，逐条比对本仓库文件；功能层面对照每个 Python 类/函数与 Java 方法。
+本文件是**全局核对清单**：把上游 `deepseek-harness` 中**每一个 `.py` 文件、每一个 `.md` 文件**（以及相关的非代码文件）与 `deepseek-harness4j-sdk` 的 Java 对应物一一核对，确保**无遗漏**。核对方法：对上游做 `find . -name '*.py' -name '*.md'` 全量枚举，逐条比对本仓库文件；功能层面对照每个 Python 类/函数与 Java 方法。
 
 结论：**`python/` 目录（Python 项目本体）内 14 个 `.py` 文件与 8 个 `.md` 文件全部有 Java 对应物**；引用的仓库脚本（`scripts/*.py` 3 个）与 `examples/jsonrpc-agent/minimal.py` 一并移植，合计 19 个 `.py` 全数覆盖。例外（如 `uv.lock`、`*.i18n.yaml`、`sdk-runtime/package.json`）为元数据/构建清单文件，已在表内标注"无 Java 等价物/由 Maven 取代"并说明理由。
 
@@ -62,7 +62,7 @@ examples/jsonrpc-agent/minimal.py
 | 2 | `python/development.md` / `development.zh.md` | `development.md`（中文）/ `development.en.md`（英文） | ✅ 完整 |
 | 3 | `python/sdk/README.md` / `README.zh.md` | `sdk/README.md` / `sdk/README.en.md` | ✅ 完整 |
 | 4 | `python/sdk-runtime/README.md` / `README.zh.md` | `sdk-runtime/README.md` / `sdk-runtime/README.en.md` | ✅ 完整 |
-| 5 | 根 `deepseek-harness-使用指南.md` | `deepseek-harness4j-使用指南.md` / `deepseek-harness4j-user-guide.en.md`（中英双语） | ✅ 完整（一~十七节全部保留） |
+| 5 | 根 `deepseek-harness-使用指南.md` | `deepseek-harness4j-sdk-使用指南.md` / `deepseek-harness4j-sdk-user-guide.en.md`（中英双语） | ✅ 完整（一~十七节全部保留） |
 | 6 | `examples/jsonrpc-agent/README.md` / `README.zh.md` | `examples/jsonrpc-agent/README.md` / `README.en.md` | ✅ 完整 |
 | 7 | `docs/user/guide/python-sdk.md` / `python-sdk.zh.md` | `docs/user-guide/python-sdk.md` / `.en.md`（Java 教程） | ✅ 完整 |
 | 8 | `docs/user/guide/index.md` / `index.zh.md` | `docs/user-guide/web-ui.md` / `.en.md` | ✅ 完整 |
@@ -153,7 +153,7 @@ examples/jsonrpc-agent/minimal.py
 ## 7. 验证方式
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn clean install     # 全 reactor（sdk / spring-boot-starter / spring-boot-example）构建 + 测试
 mvn -pl sdk test      # sdk 单元测试（含本次新增 RuntimeBuildHookTest）
 ```
@@ -169,4 +169,4 @@ mvn -pl sdk test      # sdk 单元测试（含本次新增 RuntimeBuildHookTest�
 2. **[java-migration-notes.md](java-migration-notes.md)** —— Python→Java 差异与替代语义。
 3. **用户层文档（Java 版）**：`docs/user-guide/`（SDK 教程 / Web UI / 模型配置 / LLM 适配器 / 工具编写）——上游 `docs/user/guide/` 与 `docs/cookbook/` 的移植。
 4. **全仓库索引**：`docs/repo-inventory.md` —— 上游所有区域的 md/py 归属与状态。
-5. `deepseek-harness4j-使用指南.md`、`sdk/README.md`、`sdk-runtime/README.md` —— 使用与运行时载体说明。
+5. `deepseek-harness4j-sdk-使用指南.md`、`sdk/README.md`、`sdk-runtime/README.md` —— 使用与运行时载体说明。

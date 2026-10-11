@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  deepseek-harness4j-sdk: Java port of the Python deepseek_harness SDK package.
+  deepseek-harness4j-sdk-core: Java port of the Python deepseek_harness SDK package.
 
   Port mapping:
     pyproject.toml (python/sdk)      -> this pom
@@ -19,12 +19,12 @@
 
   <parent>
     <groupId>com.deepseek-ai</groupId>
-    <artifactId>deepseek-harness4j</artifactId>
+    <artifactId>deepseek-harness4j-sdk</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>deepseek-harness4j-sdk</artifactId>
-  <name>deepseek-harness4j-sdk</name>
+  <artifactId>deepseek-harness4j-sdk-core</artifactId>
+  <name>deepseek-harness4j-sdk-core</name>
   <description>Core JSON-RPC stdio client and high-level turns API for DeepSeek Harness</description>
 
   <dependencies>
@@ -55,7 +55,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
         <configuration>
-          <release>${maven.compiler.release}</release>
+          <!-- source/target/release come from the parent properties
+               (1.8 by default; the javac "release" flag on JDK 9+ via the jdk9-plus profile) -->
           <parameters>true</parameters>
         </configuration>
       </plugin>

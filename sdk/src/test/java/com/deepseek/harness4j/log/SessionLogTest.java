@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.log;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.luben.zstd.ZstdOutputStream;
 import org.junit.jupiter.api.Test;
@@ -76,7 +79,7 @@ class SessionLogTest {
         writePlainSession(root, "--Other-project--", "session-beta",
                 betaHeader(), alphaEvents());
         Files.createDirectories(root.resolve(PROJECT_DIR).resolve("session-alpha").resolve("nested"));
-        Files.writeString(root.resolve("README.txt"), "not a session");
+        Jdk8.writeString(root.resolve("README.txt"), "not a session");
 
         assertEquals(2, SessionLog.list(root).size());
     }
@@ -131,13 +134,13 @@ class SessionLogTest {
         Path root = tmp.resolve("sessions");
         // One packed reasoning row covering seq 10-12 and one packed text row seq 13-14.
         Map<String, Object> reasoningRow = chunkRow("reasoning-chunks", 10, 1_700_000_000_010L,
-                Map.of("turn", 1, "step", 0, "index", 0, "dt", List.of(1L, 2L),
-                        "texts", List.of("think", " step", " two")));
+                Jdk8.mapOf("turn", 1, "step", 0, "index", 0, "dt", Jdk8.listOf(1L, 2L),
+                        "texts", Jdk8.listOf("think", " step", " two")));
         Map<String, Object> textRow = chunkRow("text-chunks", 13, 1_700_000_000_020L,
-                Map.of("turn", 1, "step", 0, "index", 1, "dt", List.of(5L),
-                        "texts", List.of("hello", " world")));
+                Jdk8.mapOf("turn", 1, "step", 0, "index", 1, "dt", Jdk8.listOf(5L),
+                        "texts", Jdk8.listOf("hello", " world")));
         writePlainSession(root, PROJECT_DIR, "session-packed",
-                alphaHeader(), List.of(reasoningRow, textRow));
+                alphaHeader(), Jdk8.listOf(reasoningRow, textRow));
 
         List<Map<String, Object>> events = SessionLog.read(root, "session-packed");
         assertEquals(5, events.size());
@@ -157,9 +160,9 @@ class SessionLogTest {
     void test_packed_tool_call_chunks_expand_with_id_and_name() throws Exception {
         Path root = tmp.resolve("sessions");
         Map<String, Object> toolRow = chunkRow("tool-call-chunks", 7, 1_700_000_000_000L,
-                Map.of("turn", 1, "step", 0, "index", 2, "id", "call-1", "name", "bash",
-                        "dt", List.of(3L), "args", List.of("ls", " -la")));
-        writePlainSession(root, PROJECT_DIR, "session-tool", alphaHeader(), List.of(toolRow));
+                Jdk8.mapOf("turn", 1, "step", 0, "index", 2, "id", "call-1", "name", "bash",
+                        "dt", Jdk8.listOf(3L), "args", Jdk8.listOf("ls", " -la")));
+        writePlainSession(root, PROJECT_DIR, "session-tool", alphaHeader(), Jdk8.listOf(toolRow));
 
         List<Map<String, Object>> events = SessionLog.read(root, "session-tool");
         assertEquals(2, events.size());
@@ -181,16 +184,16 @@ class SessionLogTest {
     void test_replay_filters_metadata_and_keeps_interaction_events() throws Exception {
         Path root = tmp.resolve("sessions");
         List<Map<String, Object>> events = new java.util.ArrayList<>(alphaEvents());
-        events.add(event(20, "request/header", 1_700_000_000_100L, Map.of("header", Map.of())));
-        events.add(event(21, "token-meter", 1_700_000_000_110L, Map.of()));
+        events.add(event(20, "request/header", 1_700_000_000_100L, Jdk8.mapOf("header", Jdk8.mapOf())));
+        events.add(event(21, "token-meter", 1_700_000_000_110L, Jdk8.mapOf()));
         writePlainSession(root, PROJECT_DIR, "session-replay", alphaHeader(), events);
 
         List<Map<String, Object>> replay = SessionLog.replay(root, "session-replay");
         assertEquals(3, replay.size());
         assertFalse(replay.stream().anyMatch(e -> "request/header".equals(e.get("type"))));
         assertFalse(replay.stream().anyMatch(e -> "token-meter".equals(e.get("type"))));
-        assertEquals(List.of("user/message", "assistant/message", "turn/end"),
-                replay.stream().map(e -> String.valueOf(e.get("type"))).toList());
+        assertEquals(Jdk8.listOf("user/message", "assistant/message", "turn/end"),
+                replay.stream().map(e -> String.valueOf(e.get("type"))).collect(Collectors.toList()));
     }
 
     @Test
@@ -235,8 +238,8 @@ class SessionLogTest {
         // two matching events (user + assistant) in each of two sessions
         assertEquals(4, hits.size());
         assertEquals(
-                List.of("session-a", "session-b"),
-                hits.stream().map(SessionLog.SearchHit::sessionId).distinct().sorted().toList());
+                Jdk8.listOf("session-a", "session-b"),
+                hits.stream().map(SessionLog.SearchHit::sessionId).distinct().sorted().collect(Collectors.toList()));
     }
 
     // -----------------------------------------------------------------------------------
@@ -293,7 +296,7 @@ class SessionLogTest {
     // -----------------------------------------------------------------------------------
 
     private static Map<String, Object> alphaHeader() {
-        return Map.of(
+        return Jdk8.mapOf(
                 "type", "session",
                 "version", 0,
                 "id", "session-alpha",
@@ -309,15 +312,15 @@ class SessionLogTest {
     }
 
     private static List<Map<String, Object>> alphaEvents() {
-        return List.of(
+        return Jdk8.listOf(
                 event(0, "user/message", 1_700_000_000_001L,
-                        Map.of("content", List.of(Map.of("type", "text", "text", "hello")))),
+                        Jdk8.mapOf("content", Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "hello")))),
                 event(1, "assistant/message", 1_700_000_000_010L,
-                        Map.of("message", Map.of("content",
-                                List.of(Map.of("type", "text", "text", "hello")))),
-                        Map.of("inputTokens", 42, "outputTokens", 17, "reasoningTokens", 5)),
+                        Jdk8.mapOf("message", Jdk8.mapOf("content",
+                                Jdk8.listOf(Jdk8.mapOf("type", "text", "text", "hello")))),
+                        Jdk8.mapOf("inputTokens", 42, "outputTokens", 17, "reasoningTokens", 5)),
                 event(2, "turn/end", 1_700_000_000_020L,
-                        Map.of("turn", 1, "reason", Map.of("kind", "completed"))));
+                        Jdk8.mapOf("turn", 1, "reason", Jdk8.mapOf("kind", "completed"))));
     }
 
     private static Map<String, Object> event(long seq, String type, long time,
@@ -352,7 +355,7 @@ class SessionLogTest {
     private static String textOf(Map<String, Object> event) {
         Map<String, Object> data = (Map<String, Object>) event.get("data");
         Object message = data.get("message");
-        Map<String, Object> owner = message instanceof Map m ? m : data;
+        Map<String, Object> owner = message instanceof Map ? (Map<String, Object>) message : data;
         List<Map<String, Object>> content = (List<Map<String, Object>>) owner.get("content");
         return String.valueOf(content.get(0).get("text"));
     }
@@ -380,7 +383,7 @@ class SessionLogTest {
         for (Map<String, Object> event : events) {
             sb.append(MAPPER.writeValueAsString(event)).append('\n');
         }
-        Files.writeString(dir.resolve("session.jsonl"), sb.toString(), StandardCharsets.UTF_8);
+        Jdk8.writeString(dir.resolve("session.jsonl"), sb.toString(), StandardCharsets.UTF_8);
     }
 
     private static void writeZstdSession(Path root, String projectDir, String id,

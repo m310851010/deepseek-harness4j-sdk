@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.spring;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.DeepSeekHarness;
 import com.deepseek.harness4j.DeepSeekHarnessConfig;
 import org.junit.jupiter.api.Test;
@@ -26,7 +28,7 @@ class SpringStarterExtendedTest {
                 + "{\"type\":\"user/message\",\"time\":1010,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"hello spring\"}]}}\n"
                 + "{\"type\":\"assistant/message\",\"time\":1020,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"hello world\"}]}}\n";
 
-        Files.writeString(sessDir.resolve("session.jsonl"), jsonl, StandardCharsets.UTF_8);
+        Jdk8.writeString(sessDir.resolve("session.jsonl"), jsonl, StandardCharsets.UTF_8);
 
         DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .cwd(tmp.toString())

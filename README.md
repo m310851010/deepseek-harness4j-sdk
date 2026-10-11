@@ -1,15 +1,15 @@
-# deepseek-harness4j
+# deepseek-harness4j-sdk
 
 <p align="center">
   <strong>Enterprise-Grade Java SDK & Agent Runtime Middleware for DeepSeek Harness</strong>
 </p>
 
 <p align="center">
-  <a href="https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html"><img src="https://img.shields.io/badge/Java-17%2B-blue?logo=openjdk" alt="Java 17+" /></a>
-  <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-3.x-green?logo=springboot" alt="Spring Boot 3.x" /></a>
+  <a href="https://www.oracle.com/java/technologies/javase/jdk8-downloads.html"><img src="https://img.shields.io/badge/Java-8%2B-blue?logo=openjdk" alt="Java 8+" /></a>
+  <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-2.7.x-green?logo=springboot" alt="Spring Boot 2.7.x" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
   <a href="https://deepseek.com"><img src="https://img.shields.io/badge/DeepSeek-R1%20%2F%20V3-blueviolet" alt="DeepSeek R1/V3" /></a>
-  <a href="https://github.com/geekma/deepseek-harness4j/actions"><img src="https://img.shields.io/badge/Tests-116%2F116%20Passing-brightgreen" alt="Tests 116/116" /></a>
+  <a href="https://github.com/m310851010/deepseek-harness4j-sdk/actions"><img src="https://img.shields.io/badge/Tests-116%2F116%20Passing-brightgreen" alt="Tests 116/116" /></a>
 </p>
 
 <p align="center">
@@ -25,9 +25,9 @@
 
 [English](README.md) | [中文说明](README.zh.md)
 
-**deepseek-harness4j** is the official-aligned, enterprise-grade Java SDK and runtime harness for [DeepSeek Harness (`dsh`)](https://github.com/deepseek-ai/deepseek-harness) from DeepSeek AI. It drives the native agent loop via high-performance, newline-delimited JSON-RPC 2.0 over stdio with sub-millisecond process IPC latency.
+**deepseek-harness4j-sdk** is the official-aligned, enterprise-grade Java SDK and runtime harness for [DeepSeek Harness (`dsh`)](https://github.com/deepseek-ai/deepseek-harness) from DeepSeek AI. It drives the native agent loop via high-performance, newline-delimited JSON-RPC 2.0 over stdio with sub-millisecond process IPC latency.
 
-It brings first-class Java 17+ and Spring Boot 3+ support to DeepSeek-R1 / V3 reasoning models, offline Zstd execution log analytics, reactive real-time token streaming, Java native tool bridging (`@HarnessTool`), and industrial OpenTelemetry / Langfuse observability.
+It brings Java 8+ and Spring Boot 2.7+ support to DeepSeek-R1 / V3 reasoning models, offline Zstd execution log analytics, reactive real-time token streaming, Java native tool bridging (`@HarnessTool`), and industrial OpenTelemetry / Langfuse observability.
 
 ---
 
@@ -40,7 +40,7 @@ It brings first-class Java 17+ and Spring Boot 3+ support to DeepSeek-R1 / V3 re
 - 🛡️ **Type-Safe Cordis DSL & Minimal Benchmark**: Fluent builders for `CordisConfig` and `SandboxPolicy`, plus `DeepSeekHarness.createMinimal()` for one-line SWE-bench / agent benchmarking.
 - 🔌 **Java Native Tool Registry**: Register any Spring Service or Java method as an LLM tool in seconds using `@HarnessTool` and `@Param`.
 - 📊 **Enterprise Observability**: Out-of-the-box exporters for OpenTelemetry GenAI Semantic Conventions and Langfuse APM.
-- 🍃 **Spring Boot 3 Starter**: Seamless auto-configuration, configuration properties binding, and high-level `DeepSeekHarnessTemplate`.
+- 🍃 **Spring Boot 2.7 Starter**: Seamless auto-configuration, configuration properties binding, and high-level `DeepSeekHarnessTemplate`.
 
 ---
 
@@ -53,17 +53,17 @@ Add the SDK dependency to your `pom.xml`:
 ```xml
 <dependency>
     <groupId>com.deepseek-ai</groupId>
-    <artifactId>deepseek-harness4j-sdk</artifactId>
+    <artifactId>deepseek-harness4j-sdk-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
 
-Or for Spring Boot 3 applications:
+Or for Spring Boot 2.7+ applications:
 
 ```xml
 <dependency>
     <groupId>com.deepseek-ai</groupId>
-    <artifactId>deepseek-harness4j-spring-boot-starter</artifactId>
+    <artifactId>deepseek-harness4j-sdk-spring-boot-starter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -211,7 +211,7 @@ Map<String, Object> langfuseTrace = LangfuseExporter.exportTrace(result, "securi
 
 ## 🍃 Spring Boot Integration
 
-Add `deepseek-harness4j-spring-boot-starter` to your Spring Boot 3.x project:
+Add `deepseek-harness4j-sdk-spring-boot-starter` to your Spring Boot 2.7.x project:
 
 ### `application.yml`
 
@@ -257,7 +257,7 @@ public class AgentController {
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                       Java SDK (deepseek-harness4j)                          │
+│                       Java SDK (deepseek-harness4j-sdk)                          │
 │                                                                             │
 │  [Java Client & Governance Layer]                                           │
 │  ├── Subprocess Lifecycle Guardian (ProcessBuilder + Circular Stderr Ring)  │
@@ -269,7 +269,7 @@ public class AgentController {
 │  ├── Pure Java Offline SessionLog Engine (Zstd Stream Decoding, Fork, Search)│
 │  ├── Java Native Tool Registry (@HarnessTool / Reflection Invoker)          │
 │  ├── Type-Safe Cordis DSL (CordisConfig, SandboxPolicy, createMinimal)      │
-│  └── Enterprise Integrations (Spring Boot 3, OpenTelemetry, Langfuse)       │
+│  └── Enterprise Integrations (Spring Boot 2.7, OpenTelemetry, Langfuse)    │
 │                                                                             │
 │                     │ stdio (newline-delimited JSON-RPC 2.0)                │
 │                     ▼                                                       │
@@ -292,8 +292,8 @@ public class AgentController {
 
 For exhaustive architecture breakdowns, runtime configuration catalogs, and troubleshooting:
 
-- 📖 **[DeepSeek Harness User Guide (English)](deepseek-harness4j-user-guide.en.md)**: Deep dive on runtime architecture, custom model endpoints, and session persistence.
-- 📖 **[DeepSeek Harness 使用指南 (中文)](deepseek-harness4j-使用指南.md)**: 完整架构剖析、自定义模型接入与生产级配置。
+- 📖 **[DeepSeek Harness User Guide (English)](deepseek-harness4j-sdk-user-guide.en.md)**: Deep dive on runtime architecture, custom model endpoints, and session persistence.
+- 📖 **[DeepSeek Harness 使用指南 (中文)](deepseek-harness4j-sdk-使用指南.md)**: 完整架构剖析、自定义模型接入与生产级配置。
 - 📊 **[Five Core Features Review Report](docs/review-five-features.md)**: In-depth parity review vs upstream Python SDK and benchmark specs.
 - 🛠️ **[Development & Contribution Guide](development.md)**: Building, testing, and native runtime bundling.
 

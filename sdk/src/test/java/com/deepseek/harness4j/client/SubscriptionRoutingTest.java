@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.client;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.model.Notification;
 import org.junit.jupiter.api.Test;
 
@@ -23,11 +25,11 @@ class SubscriptionRoutingTest {
     void test_client_keeps_unmatched_notifications_available_globally_while_subscribed() {
         HarnessClient client = newClient();
         try (NotificationSubscription ignored = client.subscribeSessionNotifications("main")) {
-            client.handleMessage(Map.of(
+            client.handleMessage(Jdk8.mapOf(
                     "jsonrpc", "2.0",
                     "method", "session.event",
-                    "params", Map.of("sessionId", "other",
-                            "event", Map.of("type", "assistant/message"))));
+                    "params", Jdk8.mapOf("sessionId", "other",
+                            "event", Jdk8.mapOf("type", "assistant/message"))));
             assertEquals(1, client.notificationsQueue().size());
             Notification notification = (Notification) client.notificationsQueue().poll();
             assertEquals("session.event", notification.method());
@@ -39,23 +41,23 @@ class SubscriptionRoutingTest {
     void test_session_subscription_keeps_descendant_relationships_across_subscriptions() {
         HarnessClient client = newClient();
         try (NotificationSubscription first = client.subscribeSessionNotifications("main")) {
-            client.handleMessage(Map.of(
+            client.handleMessage(Jdk8.mapOf(
                     "jsonrpc", "2.0",
                     "method", "subagent.started",
-                    "params", Map.of("parentSessionId", "main", "childSessionId", "child")));
+                    "params", Jdk8.mapOf("parentSessionId", "main", "childSessionId", "child")));
             assertEquals("child", first.next().payload().get("childSessionId"));
         }
 
         try (NotificationSubscription second = client.subscribeSessionNotifications("main")) {
-            client.handleMessage(Map.of(
+            client.handleMessage(Jdk8.mapOf(
                     "jsonrpc", "2.0",
                     "method", "subagent.started",
-                    "params", Map.of("parentSessionId", "child", "childSessionId", "grandchild")));
-            client.handleMessage(Map.of(
+                    "params", Jdk8.mapOf("parentSessionId", "child", "childSessionId", "grandchild")));
+            client.handleMessage(Jdk8.mapOf(
                     "jsonrpc", "2.0",
                     "method", "session.event",
-                    "params", Map.of("sessionId", "grandchild",
-                            "event", Map.of("type", "assistant/message"))));
+                    "params", Jdk8.mapOf("sessionId", "grandchild",
+                            "event", Jdk8.mapOf("type", "assistant/message"))));
             assertEquals("grandchild", second.next().payload().get("childSessionId"));
             assertEquals("grandchild", second.next().payload().get("sessionId"));
         }
@@ -70,43 +72,43 @@ class SubscriptionRoutingTest {
         List<String> newSeen = new ArrayList<>();
         try (NotificationSubscription oldSubscription = client.subscribeSessionNotifications("old-parent");
              NotificationSubscription newSubscription = client.subscribeSessionNotifications("new-parent")) {
-            client.handleMessage(Map.of(
+            client.handleMessage(Jdk8.mapOf(
                     "jsonrpc", "2.0",
                     "method", "subagent.started",
-                    "params", Map.of("parentSessionId", "old-parent", "childSessionId", "reused-child")));
+                    "params", Jdk8.mapOf("parentSessionId", "old-parent", "childSessionId", "reused-child")));
             oldSubscription.drain(n -> oldSeen.add(n.method()));
             newSubscription.drain(n -> newSeen.add(n.method()));
-            assertEquals(List.of("subagent.started"), oldSeen);
-            assertEquals(List.of(), newSeen);
+            assertEquals(Jdk8.listOf("subagent.started"), oldSeen);
+            assertEquals(Jdk8.listOf(), newSeen);
 
-            client.handleMessage(Map.of(
+            client.handleMessage(Jdk8.mapOf(
                     "jsonrpc", "2.0",
                     "method", "subagent.started",
-                    "params", Map.of("parentSessionId", "new-parent", "childSessionId", "reused-child")));
+                    "params", Jdk8.mapOf("parentSessionId", "new-parent", "childSessionId", "reused-child")));
             oldSubscription.drain(n -> oldSeen.add(n.method()));
             newSubscription.drain(n -> newSeen.add(n.method()));
-            assertEquals(List.of("subagent.started"), newSeen);
+            assertEquals(Jdk8.listOf("subagent.started"), newSeen);
 
-            client.handleMessage(Map.of(
+            client.handleMessage(Jdk8.mapOf(
                     "jsonrpc", "2.0",
                     "method", "subagent.finished",
-                    "params", Map.of("parentSessionId", "old-parent", "childSessionId", "reused-child")));
+                    "params", Jdk8.mapOf("parentSessionId", "old-parent", "childSessionId", "reused-child")));
             oldSubscription.drain(n -> oldSeen.add(n.method()));
             newSubscription.drain(n -> newSeen.add(n.method()));
-            assertEquals(List.of("subagent.started", "subagent.finished"), oldSeen);
-            assertEquals(List.of("subagent.started"), newSeen);
+            assertEquals(Jdk8.listOf("subagent.started", "subagent.finished"), oldSeen);
+            assertEquals(Jdk8.listOf("subagent.started"), newSeen);
 
-            client.handleMessage(Map.of(
+            client.handleMessage(Jdk8.mapOf(
                     "jsonrpc", "2.0",
                     "method", "session.event",
-                    "params", Map.of("sessionId", "reused-child",
-                            "event", Map.of("type", "assistant/message"))));
+                    "params", Jdk8.mapOf("sessionId", "reused-child",
+                            "event", Jdk8.mapOf("type", "assistant/message"))));
             oldSubscription.drain(n -> oldSeen.add(n.method()));
             newSubscription.drain(n -> newSeen.add(n.method()));
         }
 
-        assertEquals(List.of("subagent.started", "subagent.finished"), oldSeen);
-        assertEquals(List.of("subagent.started", "session.event"), newSeen);
+        assertEquals(Jdk8.listOf("subagent.started", "subagent.finished"), oldSeen);
+        assertEquals(Jdk8.listOf("subagent.started", "session.event"), newSeen);
         assertEquals(0, client.notificationsQueue().size());
     }
 }

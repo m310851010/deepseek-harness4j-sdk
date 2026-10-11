@@ -2,13 +2,13 @@
 
 [中文](python-sdk.md) | English
 
-> This file is the Java port of the upstream `docs/user/guide/python-sdk.md` (+ `python-sdk.zh.md`): the tutorial path — install, run the checked-in example, and call the SDK from your own program — is rewritten for `deepseek-harness4j`. The Web UI equivalent is [Use the Web UI](web-ui.en.md); model configuration is in [Configure models](providers.en.md).
+> This file is the Java port of the upstream `docs/user/guide/python-sdk.md` (+ `python-sdk.zh.md`): the tutorial path — install, run the checked-in example, and call the SDK from your own program — is rewritten for `deepseek-harness4j-sdk`. The Web UI equivalent is [Use the Web UI](web-ui.en.md); model configuration is in [Configure models](providers.en.md).
 
 This tutorial is the programmatic alternative to the Web UI. It installs the published Java SDK, runs a checked-in agent composition, and shows how to call the same API from your own program.
 
 ## Prerequisites
 
-- JDK 17 or newer
+- JDK 8 or newer
 - Maven 3.9+
 - A runtime carrier for Linux x64, Linux arm64, or macOS 14 or newer on arm64 (see `development.en.md`, "Build runtime artifacts")
 - A DeepSeek-compatible API endpoint and credential
@@ -21,7 +21,7 @@ This tutorial is the programmatic alternative to the Web UI. It installs the pub
 ```xml
 <dependency>
   <groupId>com.deepseek-ai</groupId>
-  <artifactId>deepseek-harness4j-sdk</artifactId>
+  <artifactId>deepseek-harness4j-sdk-core</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -29,14 +29,14 @@ This tutorial is the programmatic alternative to the Web UI. It installs the pub
 or Gradle:
 
 ```groovy
-implementation 'com.deepseek-ai:deepseek-harness4j-sdk:0.0.1-SNAPSHOT'
+implementation 'com.deepseek-ai:deepseek-harness4j-sdk-core:0.0.1-SNAPSHOT'
 ```
 
 ### Build from source
 
 ```sh
-git clone https://github.com/geekma/deepseek-harness4j.git
-cd deepseek-harness4j
+git clone https://github.com/m310851010/deepseek-harness4j-sdk.git
+cd deepseek-harness4j-sdk
 mvn install            # build all modules (sdk / spring-boot-starter / spring-boot-example)
 ```
 
@@ -60,7 +60,7 @@ export DEEPSEEK_API_KEY=sk-your-key-here
 Run one task against an isolated workspace and session directory (the example entry is `com.deepseek.harness4j.examples.MinimalAgent`, the counterpart of upstream `examples/jsonrpc-agent/minimal.py`):
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn -q -pl sdk exec:java \
   -Dexec.mainClass=com.deepseek.harness4j.examples.MinimalAgent \
   -Dexec.args="--workspace /absolute/path/to/workspace --session-root /absolute/path/to/sessions --session-id example-001 'Inspect the repository and fix the failing tests.'"

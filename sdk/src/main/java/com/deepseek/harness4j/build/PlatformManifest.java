@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.build;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.nio.file.Paths;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -50,7 +53,7 @@ public final class PlatformManifest {
         for (Map.Entry<String, Object> entry : payload.entrySet()) {
             String name = entry.getKey();
             Object raw = entry.getValue();
-            if (!(raw instanceof Map) || !((Map<?, ?>) raw).keySet().equals(java.util.Set.of("tag", "executable"))) {
+            if (!(raw instanceof Map) || !((Map<?, ?>) raw).keySet().equals(Jdk8.setOf("tag", "executable"))) {
                 throw new IllegalArgumentException(
                         path + " platform entries must contain string tag and executable fields");
             }
@@ -61,7 +64,7 @@ public final class PlatformManifest {
                 throw new IllegalArgumentException(
                         path + " platform entries must contain string tag and executable fields");
             }
-            platforms.put(name, List.of((String) tag, (String) executable));
+            platforms.put(name, Jdk8.listOf((String) tag, (String) executable));
         }
         return platforms;
     }
@@ -72,8 +75,8 @@ public final class PlatformManifest {
      */
     public static List<String> runtimeSuffixes(String executableName) {
         return executableName.contains("-macos-")
-                ? List.of("", "-spawn-helper")
-                : List.of("");
+                ? Jdk8.listOf("", "-spawn-helper")
+                : Jdk8.listOf("");
     }
 
     /**
@@ -134,14 +137,14 @@ public final class PlatformManifest {
         List<String> pair = PLATFORMS.get(key);
         if (pair == null) {
             throw new IllegalArgumentException(
-                    "unsupported deepseek-harness4j-runtime-bin build platform: " + key);
+                    "unsupported deepseek-harness4j-sdk-runtime-bin build platform: " + key);
         }
         return pair.get(0);
     }
 
     private static Path defaultManifest() {
         try {
-            return Path.of(PlatformManifest.class.getResource("/platforms.json").toURI());
+            return Paths.get(PlatformManifest.class.getResource("/platforms.json").toURI());
         } catch (Exception error) {
             throw new IllegalStateException("missing packaged platforms.json", error);
         }

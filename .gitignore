@@ -21,3 +21,8 @@ runtime/node/
 AGENTS.md
 .agents/rules/caveman.md
 GEMINI.md
+
+# Session planning notes (not part of the codebase)
+task_plan.md
+findings.md
+progress.md

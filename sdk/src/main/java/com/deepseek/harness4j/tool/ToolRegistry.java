@@ -22,16 +22,37 @@ public final class ToolRegistry {
 
     private final Map<String, ToolEntry> tools = new ConcurrentHashMap<>();
 
-    private record ToolEntry(
-            ToolDefinition definition,
-            Object target,
-            Method method,
-            List<ParameterEntry> parameters) {}
+    private static final class ToolEntry {
 
-    private record ParameterEntry(
-            String name,
-            Class<?> type,
-            boolean required) {}
+        final ToolDefinition definition;
+        final Object target;
+        final Method method;
+        final List<ParameterEntry> parameters;
+
+        ToolEntry(
+                ToolDefinition definition,
+                Object target,
+                Method method,
+                List<ParameterEntry> parameters) {
+            this.definition = definition;
+            this.target = target;
+            this.method = method;
+            this.parameters = parameters;
+        }
+    }
+
+    private static final class ParameterEntry {
+
+        final String name;
+        final Class<?> type;
+        final boolean required;
+
+        ParameterEntry(String name, Class<?> type, boolean required) {
+            this.name = name;
+            this.type = type;
+            this.required = required;
+        }
+    }
 
     /**
      * Scan the given object for {@link HarnessTool} annotated methods and register them.

@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.client;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.nio.file.Paths;
+
 import com.deepseek.harness4j.error.HarnessException;
 import com.deepseek.harness4j.error.HarnessTimeoutException;
 import com.deepseek.harness4j.error.JsonRpcException;
@@ -146,7 +149,7 @@ public class HarnessClient implements AutoCloseable {
         String[] chosen = config.launchArgsOverride() != null
                 ? config.launchArgsOverride()
                 : defaultLaunchArgs();
-        List<String> args = new ArrayList<>(List.of(chosen));
+        List<String> args = new ArrayList<>(Jdk8.listOf(chosen));
         Map<String, String> env = new LinkedHashMap<>();
         if (config.env() != null) {
             env.putAll(config.env());
@@ -155,7 +158,7 @@ public class HarnessClient implements AutoCloseable {
         ProcessBuilder builder = new ProcessBuilder(args);
         builder.redirectErrorStream(false);
         if (config.cwd() != null) {
-            builder.directory(new File(Path.of(config.cwd()).toAbsolutePath().toString()));
+            builder.directory(new File(Paths.get(config.cwd()).toAbsolutePath().toString()));
         }
         builder.environment().putAll(env);
         try {
@@ -171,7 +174,7 @@ public class HarnessClient implements AutoCloseable {
 
     public InitializeResponse initialize(String cwd, String provider, String model, Integer maxTokens) {
         Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("cwd", Path.of(cwd).toAbsolutePath().toString());
+        payload.put("cwd", Paths.get(cwd).toAbsolutePath().toString());
         payload.put("provider", provider);
         payload.put("model", model);
         if (maxTokens != null) {
@@ -370,8 +373,8 @@ public class HarnessClient implements AutoCloseable {
                 tempSubscription.close();
             }
         }
-        if (item instanceof Throwable throwable) {
-            rethrow(throwable);
+        if (item instanceof Throwable) {
+            rethrow((Throwable) item);
         }
         return item;
     }
@@ -419,7 +422,7 @@ public class HarnessClient implements AutoCloseable {
                 new InputStreamReader(current.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.isBlank()) {
+                if (Jdk8.isBlank(line)) {
                     continue;
                 }
                 Object message;
@@ -447,7 +450,7 @@ public class HarnessClient implements AutoCloseable {
                 new InputStreamReader(current.getErrorStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                appendStderr(line.stripTrailing());
+                appendStderr(trailingWhitespaceRemoved(line));
             }
         } catch (IOException ignored) {
             // stderr stream closed on shutdown; nothing else can reach this loop.
@@ -461,7 +464,8 @@ public class HarnessClient implements AutoCloseable {
         }
         Object msgId = msg.get("id");
         Object method = msg.get("method");
-        if (isId(msgId) && method instanceof String methodName) {
+        if (isId(msgId) && method instanceof String) {
+            String methodName = (String) method;
             Object params = msg.get("params");
             Map<String, Object> payload = params instanceof Map
                     ? asStringKeyedMap(params)
@@ -478,9 +482,11 @@ public class HarnessClient implements AutoCloseable {
                 return;
             }
             Object error = msg.get("error");
-            if (error instanceof Map errorMap) {
+            if (error instanceof Map) {
+                Map<?, ?> errorMap = (Map<?, ?>) error;
                 Object errCode = errorMap.get("code");
-                Object errMessage = errorMap.getOrDefault("message", "JSON-RPC error");
+                Object errMessage = errorMap.containsKey("message")
+                        ? errorMap.get("message") : "JSON-RPC error";
                 waiter.add(new JsonRpcException(
                         JsonValues.asIntOrNull(errCode),
                         String.valueOf(errMessage),
@@ -490,7 +496,8 @@ public class HarnessClient implements AutoCloseable {
             }
             return;
         }
-        if (method instanceof String methodName) {
+        if (method instanceof String) {
+            String methodName = (String) method;
             Object params = msg.get("params");
             Map<String, Object> payload = params instanceof Map
                     ? asStringKeyedMap(params)
@@ -592,7 +599,7 @@ public class HarnessClient implements AutoCloseable {
         } catch (MissingRuntimeException exc) {
             throw new MissingRuntimeException(
                     "Unable to locate the bundled DeepSeek Harness SDK runtime. "
-                            + "Install deepseek-harness4j-runtime-bin or set HarnessConfig.runtimeBin.",
+                            + "Install deepseek-harness4j-sdk-runtime-bin or set HarnessConfig.runtimeBin.",
                     exc);
         }
         return args;
@@ -625,12 +632,12 @@ public class HarnessClient implements AutoCloseable {
         }
         Object parentId = notification.payload().get("parentSessionId");
         Object childId = notification.payload().get("childSessionId");
-        if (parentId instanceof String parent
-                && !parent.isEmpty()
-                && childId instanceof String child
-                && !child.isEmpty()
-                && !parent.equals(child)) {
-            sessionParents.put(child, parent);
+        if (parentId instanceof String && childId instanceof String) {
+            String parent = (String) parentId;
+            String child = (String) childId;
+            if (!parent.isEmpty() && !child.isEmpty() && !parent.equals(child)) {
+                sessionParents.put(child, parent);
+            }
         }
     }
 
@@ -640,16 +647,16 @@ public class HarnessClient implements AutoCloseable {
             if ("subagent.started".equals(notification.method())
                     || "subagent.finished".equals(notification.method())) {
                 Object parentId = payload.get("parentSessionId");
-                if (parentId instanceof String parent
-                        && sessionIsDescendantOf(parent, sessionId)) {
+                if (parentId instanceof String
+                        && sessionIsDescendantOf((String) parentId, sessionId)) {
                     return true;
                 }
                 Object childId = payload.get("childSessionId");
                 return sessionId.equals(childId);
             }
             Object relatedId = payload.get("sessionId");
-            return relatedId instanceof String related
-                    && sessionIsDescendantOf(related, sessionId);
+            return relatedId instanceof String
+                    && sessionIsDescendantOf((String) relatedId, sessionId);
         };
     }
 
@@ -678,8 +685,8 @@ public class HarnessClient implements AutoCloseable {
             Thread.currentThread().interrupt();
             throw new HarnessException("Interrupted while waiting for " + what, exc);
         }
-        if (item instanceof Throwable throwable) {
-            rethrow(throwable);
+        if (item instanceof Throwable) {
+            rethrow((Throwable) item);
         }
         return (Notification) item;
     }
@@ -692,8 +699,8 @@ public class HarnessClient implements AutoCloseable {
             Thread.currentThread().interrupt();
             throw new HarnessException("Interrupted while waiting for incoming request", exc);
         }
-        if (item instanceof Throwable throwable) {
-            rethrow(throwable);
+        if (item instanceof Throwable) {
+            rethrow((Throwable) item);
         }
         return (IncomingRequest) item;
     }
@@ -705,6 +712,15 @@ public class HarnessClient implements AutoCloseable {
                 stderrLines.removeFirst();
             }
         }
+    }
+
+    /** JDK 8 stand-in for {@code String.stripTrailing()} (Java 11+). */
+    private static String trailingWhitespaceRemoved(String line) {
+        int end = line.length();
+        while (end > 0 && Character.isWhitespace(line.charAt(end - 1))) {
+            end--;
+        }
+        return line.substring(0, end);
     }
 
     private static void joinThread(Thread thread) {
@@ -744,11 +760,11 @@ public class HarnessClient implements AutoCloseable {
 
     @SuppressWarnings("unchecked")
     private static <T extends Throwable> void rethrow(Throwable throwable) throws T {
-        if (throwable instanceof RuntimeException runtime) {
-            throw runtime;
+        if (throwable instanceof RuntimeException) {
+            throw (RuntimeException) throwable;
         }
-        if (throwable instanceof Error error) {
-            throw error;
+        if (throwable instanceof Error) {
+            throw (Error) throwable;
         }
         throw (T) new HarnessException(throwable);
     }

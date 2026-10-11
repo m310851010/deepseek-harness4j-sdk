@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.runtime;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.nio.file.Paths;
+
 import com.deepseek.harness4j.error.MissingRuntimeException;
 
 import java.io.IOException;
@@ -58,12 +61,12 @@ public final class RuntimeResolver {
     public static final String RUNTIME_DIR_PROPERTY = "dsh4j.runtime.dir";
     public static final String RUNTIME_DIR_ENV_VAR = "DSH4J_RUNTIME_DIR";
 
-    private static final Map<String, String> PLATFORM_TAGS = Map.of(
+    private static final Map<String, String> PLATFORM_TAGS = Jdk8.mapOf(
             "linux", "linux",
             "darwin", "macos",
             "mac", "macos");
 
-    private static final Map<String, String> ARCH_TAGS = Map.of(
+    private static final Map<String, String> ARCH_TAGS = Jdk8.mapOf(
             "x86_64", "x64",
             "amd64", "x64",
             "arm64", "arm64",
@@ -72,7 +75,7 @@ public final class RuntimeResolver {
     private static final String EXE_ACQUISITION_HINT =
             "Two ways to get the executable: build the DeepSeek Harness SDK runtime in a "
                     + "deepseek-harness checkout, or install the matching "
-                    + "`deepseek-harness4j-runtime-bin` platform distribution. For local "
+                    + "`deepseek-harness4j-sdk-runtime-bin` platform distribution. For local "
                     + "development against a repository source build, explicitly select the "
                     + "dev-only node carrier with DSH_RUNTIME_MODE=node (or "
                     + "resolveBundledLaunchArgs(\"node\")).";
@@ -101,14 +104,14 @@ public final class RuntimeResolver {
             Path metadata = explicit.resolve(PACKAGE_METADATA_FILENAME);
             if (!Files.isRegularFile(metadata)) {
                 throw new MissingRuntimeException(
-                        "deepseek-harness4j-runtime is missing " + metadata);
+                        "deepseek-harness4j-sdk-runtime is missing " + metadata);
             }
             return explicit;
         }
         URL resource = resource(PACKAGE_METADATA_FILENAME);
         if (resource != null && "file".equals(resource.getProtocol())) {
             try {
-                return Path.of(resource.toURI()).getParent();
+                return Paths.get(resource.toURI()).getParent();
             } catch (URISyntaxException exc) {
                 throw new MissingRuntimeException(
                         "could not resolve runtime metadata resource location", exc);
@@ -116,7 +119,7 @@ public final class RuntimeResolver {
         }
         throw new MissingRuntimeException(
                 "Unable to locate the bundled DeepSeek Harness SDK runtime. "
-                        + "Install deepseek-harness4j-runtime-bin or set dsh4j.runtime.dir / "
+                        + "Install deepseek-harness4j-sdk-runtime-bin or set dsh4j.runtime.dir / "
                         + "DSH4J_RUNTIME_DIR to an installed runtime package root.");
     }
 
@@ -145,11 +148,11 @@ public final class RuntimeResolver {
         URL resource = resource("runtime/cordis.yml");
         if (resource == null) {
             throw new MissingRuntimeException(
-                    "deepseek-harness4j-runtime is missing the default runtime config at "
+                    "deepseek-harness4j-sdk-runtime is missing the default runtime config at "
                             + "runtime/cordis.yml");
         }
         try {
-            Path target = Files.createTempFile("deepseek-harness4j-default-", ".cordis.yml");
+            Path target = Files.createTempFile("deepseek-harness4j-sdk-default-", ".cordis.yml");
             try (InputStream in = resource.openStream()) {
                 Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
             }
@@ -176,14 +179,14 @@ public final class RuntimeResolver {
         Path path = bundledPackageDir().resolve("runtime").resolve("dsh-jsonrpc-agent-pkg-" + tag);
         if (!Files.isRegularFile(path)) {
             throw new MissingRuntimeException(
-                    "deepseek-harness4j-runtime is missing the runtime executable at " + path + ". "
+                    "deepseek-harness4j-sdk-runtime is missing the runtime executable at " + path + ". "
                             + EXE_ACQUISITION_HINT);
         }
         if (tag.startsWith("macos-")) {
-            Path helper = Path.of(path + "-spawn-helper");
+            Path helper = Paths.get(path + "-spawn-helper");
             if (!Files.isRegularFile(helper)) {
                 throw new MissingRuntimeException(
-                        "deepseek-harness4j-runtime is missing the node-pty spawn helper at "
+                        "deepseek-harness4j-sdk-runtime is missing the node-pty spawn helper at "
                                 + helper + ". " + EXE_ACQUISITION_HINT);
             }
         }
@@ -264,13 +267,13 @@ public final class RuntimeResolver {
 
     private static Path explicitRuntimeDir() {
         String value = System.getProperty(RUNTIME_DIR_PROPERTY);
-        if (value == null || value.isBlank()) {
+        if (value == null || Jdk8.isBlank(value)) {
             value = System.getenv(RUNTIME_DIR_ENV_VAR);
         }
-        if (value == null || value.isBlank()) {
+        if (value == null || Jdk8.isBlank(value)) {
             return null;
         }
-        return Path.of(value).toAbsolutePath();
+        return Paths.get(value).toAbsolutePath();
     }
 
     private static URL resource(String name) {
@@ -279,14 +282,14 @@ public final class RuntimeResolver {
 
     private static String findOnPath(String executable) {
         String path = System.getenv("PATH");
-        if (path == null || path.isBlank()) {
+        if (path == null || Jdk8.isBlank(path)) {
             return null;
         }
         for (String dir : path.split(java.io.File.pathSeparator)) {
-            if (dir.isBlank()) {
+            if (Jdk8.isBlank(dir)) {
                 continue;
             }
-            Path candidate = Path.of(dir).resolve(executable);
+            Path candidate = Paths.get(dir).resolve(executable);
             if (Files.isRegularFile(candidate) && Files.isExecutable(candidate)) {
                 return candidate.toString();
             }
@@ -313,7 +316,7 @@ public final class RuntimeResolver {
     }
 
     static Set<String> supportedPlatformTags() {
-        return new HashSet<>(Set.of(
+        return new HashSet<>(Jdk8.setOf(
                 "linux-x64", "linux-arm64", "macos-arm64"));
     }
 }

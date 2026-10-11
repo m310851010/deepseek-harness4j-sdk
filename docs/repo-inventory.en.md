@@ -1,15 +1,15 @@
-# Upstream repository global inventory (deepseek-harness4j correspondence index)
+# Upstream repository global inventory (deepseek-harness4j-sdk correspondence index)
 
 [中文](repo-inventory.md) | English
 
-This file is a **repository-level global checklist**: it indexes every top-level area of the upstream `deepseek-ai/deepseek-harness` (its `.md`/`.py` files) and records the port status and entry point in `deepseek-harness4j`. It is the repo-wide extension of `docs/port-coverage.md` (which targets `python/` and its references).
+This file is a **repository-level global checklist**: it indexes every top-level area of the upstream `deepseek-ai/deepseek-harness` (its `.md`/`.py` files) and records the port status and entry point in `deepseek-harness4j-sdk`. It is the repo-wide extension of `docs/port-coverage.md` (which targets `python/` and its references).
 
 ## Conclusion
 
 - **The Python project itself (`python/`, 8 md + 14 py) and the `scripts/*.py` and `examples/jsonrpc-agent/minimal.py` it references are 100% ported** (see `port-coverage.md`).
 - **User-facing documentation** (the parts of `docs/user/guide/` and `docs/cookbook/` relevant to usage/extension) is ported as bilingual references (`docs/user-guide/`); the rest of `docs/` is language-neutral architecture/engineering reference, indexed rather than line-ported.
 - **In `examples/`, `jsonrpc-agent` (the Python SDK companion) is ported**; the remaining leaves are Web/CLI/ACP demos, indexed.
-- **Node/TypeScript projects** (`packages/`, `apps/`, `vendor/`, `website/`, `native/`, `.agents/`) are not the Python project; `deepseek-harness4j` is a client port — the runtime and plugins are provided upstream — so they are indexed for reference.
+- **Node/TypeScript projects** (`packages/`, `apps/`, `vendor/`, `website/`, `native/`, `.agents/`) are not the Python project; `deepseek-harness4j-sdk` is a client port — the runtime and plugins are provided upstream — so they are indexed for reference.
 
 ## Top-level areas
 
@@ -58,7 +58,7 @@ All 14 `.py` files and all 8 `.md` files have Java counterparts; the line-by-lin
 
 | Upstream doc | Nature | Where it lands in 4j |
 |---|---|---|
-| `docs/architecture.md` | core architecture map (composition/core packages/loop/seams/extension points) | deep-dive in `deepseek-harness4j-user-guide.en.md` §16 |
+| `docs/architecture.md` | core architecture map (composition/core packages/loop/seams/extension points) | deep-dive in `deepseek-harness4j-sdk-user-guide.en.md` §16 |
 | `docs/cordis-primer.md` / `docs/cordis-tutorial/` | Cordis composition syntax/tutorial | language-neutral; referenced by the guide and user-guide |
 | `docs/development.md` | contributor setup/daily/CI | ported as `development.md` (.en) |
 | `docs/testing.md` | testing policy | language-neutral; 4j tests in `development.md` |
@@ -82,9 +82,9 @@ All 14 `.py` files and all 8 `.md` files have Java counterparts; the line-by-lin
 ## 5. Verification
 
 ```sh
-# Full upstream enumeration (result: zero omissions; the accidental nested deepseek-harness4j copy is excluded)
-find . -name '*.py' -not -path './vendor/*' -not -path '*/node_modules/*' -not -path './deepseek-harness4j/*' | wc -l   # 19
-find . -name '*.md' -not -path './vendor/*' -not -path '*/node_modules/*' -not -path './deepseek-harness4j/*' | wc -l   # 2344
+# Full upstream enumeration (result: zero omissions; the accidental nested deepseek-harness4j-sdk copy is excluded)
+find . -name '*.py' -not -path './vendor/*' -not -path '*/node_modules/*' -not -path './deepseek-harness4j-sdk/*' | wc -l   # 19
+find . -name '*.md' -not -path './vendor/*' -not -path '*/node_modules/*' -not -path './deepseek-harness4j-sdk/*' | wc -l   # 2344
 ```
 
 All 14 `.py` files inside `python/` and 8 `.md` files have Java counterparts — 19 `.py` files in

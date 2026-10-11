@@ -1,5 +1,7 @@
 package com.deepseek.harness4j;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.model.StreamChunk;
 import com.deepseek.harness4j.test.TestRuntimes;
 import org.junit.jupiter.api.Test;
@@ -10,7 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Flow;
+import com.deepseek.harness4j.util.flow.Publisher;
+import com.deepseek.harness4j.util.flow.Subscriber;
+import com.deepseek.harness4j.util.flow.Subscription;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +34,7 @@ class StreamingTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "streaming-turn"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "streaming-turn"))
                 .build())) {
             result = harness.stream("stream this turn", "stream-sess", chunks::add);
         }
@@ -60,15 +64,15 @@ class StreamingTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "streaming-turn"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "streaming-turn"))
                 .build())) {
-            Flow.Publisher<StreamChunk> publisher = harness.stream("reactive turn", "pub-sess");
+            Publisher<StreamChunk> publisher = harness.stream("reactive turn", "pub-sess");
 
-            publisher.subscribe(new Flow.Subscriber<>() {
-                private Flow.Subscription subscription;
+            publisher.subscribe(new Subscriber<StreamChunk>() {
+                private Subscription subscription;
 
                 @Override
-                public void onSubscribe(Flow.Subscription subscription) {
+                public void onSubscribe(Subscription subscription) {
                     this.subscription = subscription;
                     subscription.request(Long.MAX_VALUE);
                 }

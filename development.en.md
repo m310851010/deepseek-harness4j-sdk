@@ -6,7 +6,7 @@ Follow the workflow for the contributor outcome you need: build runtime artifact
 
 ## Build runtime artifacts
 
-> **This section is for SDK contributors and release engineers only.** Regular Java SDK users should grab a pre-built carrier binary and follow [sdk-runtime/README.en.md](sdk-runtime/README.en.md). The steps below require the **upstream toolchain** (Node.js 22+ / pnpm), which is intentionally **not** a dependency of deepseek-harness4j.
+> **This section is for SDK contributors and release engineers only.** Regular Java SDK users should grab a pre-built carrier binary and follow [sdk-runtime/README.en.md](sdk-runtime/README.en.md). The steps below require the **upstream toolchain** (Node.js 22+ / pnpm), which is intentionally **not** a dependency of deepseek-harness4j-sdk.
 
 Platform executables are build artifacts and are not checked into git (they are injected into the runtime carrier by the upstream deepseek-harness build). Run the build from the **upstream repository root**:
 
@@ -19,12 +19,12 @@ pnpm exec tsx scripts/build-exe-for-python-sdk.ts
 
 Use `--skip-build` when the required `lib/` artifacts already exist, or `--targets=node24-linux-x64,node24-linux-arm64,node24-macos-arm64` to select platforms. Products land in the upstream `dist-exe/` and the script syncs the selected carriers into the matching runtime carrier. macOS builds also sync the matching spawn helper required by `node-pty`.
 
-After building, place the produced executables into this repository's runtime-carrier directory (or install the `deepseek-harness-runtime.json` metadata plus `runtime/` content in an explicit runtime directory supported by `RuntimeResolver`) so `deepseek-harness4j-sdk` can launch them zero-config.
+After building, place the produced executables into this repository's runtime-carrier directory (or install the `deepseek-harness-runtime.json` metadata plus `runtime/` content in an explicit runtime directory supported by `RuntimeResolver`) so `deepseek-harness4j-sdk-core` can launch them zero-config.
 
 ## Validate the SDK
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn install          # first install sdk and spring-boot-starter into the local repo (for example)
 mvn test             # run the sdk module's JUnit 5 suite
 ```
@@ -68,8 +68,8 @@ A complete source-mode invocation is covered by the `FakeRuntime`-based tests un
 The Python pipeline — root `package.json` as the authoritative version, wheel builds (a pure SDK wheel plus one runtime wheel per native platform), PyPI publishing — is replaced by **Maven** on the Java side:
 
 ```sh
-cd deepseek-harness4j
-mvn clean install     # build and install deepseek-harness4j-sdk / -spring-boot-starter / -spring-boot-example
+cd deepseek-harness4j-sdk
+mvn clean install     # build and install deepseek-harness4j-sdk-core / -spring-boot-starter / -spring-boot-example
 mvn deploy            # publish to your Maven repository (Nexus / Artifactory, etc.)
 ```
 

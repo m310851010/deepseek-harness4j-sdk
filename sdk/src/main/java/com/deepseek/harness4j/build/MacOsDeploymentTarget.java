@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.build;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.util.stream.Collectors;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -49,7 +52,7 @@ public final class MacOsDeploymentTarget {
             throw new IllegalArgumentException(
                     "unsupported macOS wheel platform tag: '" + platformTag + "'");
         }
-        return List.of(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
+        return Jdk8.listOf(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
     }
 
     /**
@@ -94,7 +97,7 @@ public final class MacOsDeploymentTarget {
     public static void ensureCompatible(Path executable, List<Integer> actual, String platformTag) {
         List<Integer> claimed = claimedVersion(platformTag);
         if (compareVersion(actual, claimed) > 0) {
-            String rendered = String.join(".", actual.stream().map(String::valueOf).toList());
+            String rendered = String.join(".", actual.stream().map(String::valueOf).collect(Collectors.toList()));
             throw new IllegalStateException(
                     executable + " requires macOS " + rendered
                             + " but the wheel claims " + platformTag);

@@ -1,15 +1,15 @@
-# 上游仓库全局清单（deepseek-harness4j 对应索引）
+# 上游仓库全局清单（deepseek-harness4j-sdk 对应索引）
 
 [English](repo-inventory.en.md) | 中文
 
-本文件是**仓库级全局清单**：对上游 `deepseek-ai/deepseek-harness` 的全部顶层区域（`.md`/`.py` 文件）建立索引，标注在 `deepseek-harness4j` 中的移植状态与入口。它是 `docs/port-coverage.md`（针对 `python/` 及其引用）的全仓库扩展。
+本文件是**仓库级全局清单**：对上游 `deepseek-ai/deepseek-harness` 的全部顶层区域（`.md`/`.py` 文件）建立索引，标注在 `deepseek-harness4j-sdk` 中的移植状态与入口。它是 `docs/port-coverage.md`（针对 `python/` 及其引用）的全仓库扩展。
 
 ## 结论
 
 - **Python 项目本体（`python/`，8 md + 14 py）与它引用的 `scripts/*.py`、`examples/jsonrpc-agent/minimal.py` 已 100% 移植**（见 `port-coverage.md`）。
 - **用户可读文档**（`docs/user/guide/`、`docs/cookbook/` 中与使用/扩展相关的部分）已移植为双语参考（`docs/user-guide/`）；其余 `docs/` 为语言无关的架构/工程参考，予以索引而非逐行移植。
 - **`examples/` 中 `jsonrpc-agent`（Python SDK 配套）已移植**；其余叶子为 Web/CLI/ACP 演示，予以索引。
-- **Node/TypeScript 工程**（`packages/`、`apps/`、`vendor/`、`website/`、`native/`、`.agents/`）不是 Python 项目；`deepseek-harness4j` 是客户端移植，运行时与插件由上游提供，予以索引说明。
+- **Node/TypeScript 工程**（`packages/`、`apps/`、`vendor/`、`website/`、`native/`、`.agents/`）不是 Python 项目；`deepseek-harness4j-sdk` 是客户端移植，运行时与插件由上游提供，予以索引说明。
 
 ## 顶层区域总表
 
@@ -58,7 +58,7 @@
 
 | 上游文档 | 性质 | 在 4j 中的落点 |
 |---|---|---|
-| `docs/architecture.md` | 核心架构图（组合/核心包/循环/seam/扩展点） | 深度解读见 `deepseek-harness4j-使用指南.md` §16 |
+| `docs/architecture.md` | 核心架构图（组合/核心包/循环/seam/扩展点） | 深度解读见 `deepseek-harness4j-sdk-使用指南.md` §16 |
 | `docs/cordis-primer.md` / `docs/cordis-tutorial/` | Cordis 组合语法/教程 | 语言无关；被指南与 user-guide 引用 |
 | `docs/development.md` | 贡献者设置/日常/CI | 移植为 `development.md`（.en） |
 | `docs/testing.md` | 测试政策 | 语言无关；4j 测试见 `development.md` |
@@ -82,9 +82,9 @@
 ## 5. 校验
 
 ```sh
-# 上游全量枚举核对（结果=零遗漏；已排除仓库内意外检入的 deepseek-harness4j 嵌套副本）
-find . -name '*.py' -not -path './vendor/*' -not -path '*/node_modules/*' -not -path './deepseek-harness4j/*' | wc -l   # 19
-find . -name '*.md' -not -path './vendor/*' -not -path '*/node_modules/*' -not -path './deepseek-harness4j/*' | wc -l   # 2344
+# 上游全量枚举核对（结果=零遗漏；已排除仓库内意外检入的 deepseek-harness4j-sdk 嵌套副本）
+find . -name '*.py' -not -path './vendor/*' -not -path '*/node_modules/*' -not -path './deepseek-harness4j-sdk/*' | wc -l   # 19
+find . -name '*.md' -not -path './vendor/*' -not -path '*/node_modules/*' -not -path './deepseek-harness4j-sdk/*' | wc -l   # 2344
 ```
 
 `python/` 内 14 个 `.py` 与 8 个 `.md` 全部有 Java 对应物（见 `port-coverage.md`）；连同引用的 `scripts/*.py`、`examples/jsonrpc-agent/minimal.py` 共 19 个 `.py` 全数覆盖。本清单覆盖其余 2336 个 md 的归属与状态。

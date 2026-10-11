@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.examples;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.nio.file.Paths;
+
 import com.deepseek.harness4j.DeepSeekHarness;
 import com.deepseek.harness4j.DeepSeekHarnessConfig;
 import com.deepseek.harness4j.RunResult;
@@ -42,13 +45,15 @@ public final class ManualSdkAgentSmoke {
     }
 
     public static void main(String[] args) throws Exception {
-        Path repoRoot = Path.of("").toAbsolutePath();
+        Path repoRoot = Paths.get("").toAbsolutePath();
         boolean keepSessions = false;
         for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "--repo-root" -> repoRoot = Path.of(args[++i]).toAbsolutePath().normalize();
-                case "--keep-sessions" -> keepSessions = true;
-                default -> throw new IllegalArgumentException("unknown option: " + args[i]);
+            if ("--repo-root".equals(args[i])) {
+                repoRoot = Paths.get(args[++i]).toAbsolutePath().normalize();
+            } else if ("--keep-sessions".equals(args[i])) {
+                keepSessions = true;
+            } else {
+                throw new IllegalArgumentException("unknown option: " + args[i]);
             }
         }
         runSmoke(repoRoot, keepSessions);
@@ -77,7 +82,7 @@ public final class ManualSdkAgentSmoke {
                     .sessionRoot(sessionRoot.toString())
                     .cordis(RuntimeResolver.bundledDefaultConfigPath().toString())
                     .launchArgsOverride("node", "--import", "tsx", runtimeEntry.toString())
-                    .env(Map.of(
+                    .env(Jdk8.mapOf(
                             "DEEPSEEK_BASE_URL", baseUrl,
                             "DEEPSEEK_API_KEY", "sdk-smoke-key"))
                     .requestTimeoutSeconds(20.0)
@@ -106,7 +111,7 @@ public final class ManualSdkAgentSmoke {
             }
 
             List<Path> jsonlFiles = new ArrayList<>();
-            try (var stream = Files.walk(sessionRoot)) {
+            try (java.util.stream.Stream<Path> stream = Files.walk(sessionRoot)) {
                 stream.filter(path -> path.toString().endsWith(".jsonl.zstd"))
                         .forEach(jsonlFiles::add);
             }
@@ -138,8 +143,10 @@ public final class ManualSdkAgentSmoke {
     }
 
     private static void handleCompletion(HttpExchange exchange) throws IOException {
-        String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-        REQUESTS.add(Map.of(
+        String body = new String(
+                com.deepseek.harness4j.util.Jdk8.readAllBytes(exchange.getRequestBody()),
+                StandardCharsets.UTF_8);
+        REQUESTS.add(Jdk8.mapOf(
                 "path", exchange.getRequestURI().getPath(),
                 "authorization", exchange.getRequestHeaders().getFirst("authorization"),
                 "body", parseJson(body)));
@@ -173,7 +180,7 @@ public final class ManualSdkAgentSmoke {
         if (!Files.exists(root)) {
             return;
         }
-        try (var stream = Files.walk(root)) {
+        try (java.util.stream.Stream<Path> stream = Files.walk(root)) {
             stream.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
                 try {
                     Files.deleteIfExists(path);

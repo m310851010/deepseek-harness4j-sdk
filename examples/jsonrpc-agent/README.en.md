@@ -1,4 +1,4 @@
-# jsonrpc-agent (deepseek-harness4j Java example)
+# jsonrpc-agent (deepseek-harness4j-sdk Java example)
 
 [中文](README.md) | English
 
@@ -42,7 +42,7 @@ It composes the local PTY, bare `fs-local` backend, danger-full-access policy fo
 `MinimalAgent` (Java) runs the composition through the SDK and uses `DSH_MODEL` as its default model. To run (a runtime carrier must be installed first; see `development.en.md`):
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 export DEEPSEEK_API_KEY=sk-xxx
 mvn -q -pl sdk exec:java \
   -Dexec.mainClass=com.deepseek.harness4j.examples.MinimalAgent \

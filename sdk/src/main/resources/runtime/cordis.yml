@@ -4,7 +4,7 @@
 #
 # Java port note: this file is the DeepSeek Harness runtime's own Cordis
 # composition (YAML with !!js expressions). It is shipped unchanged as a
-# classpath resource of deepseek-harness4j-sdk and passed to the runtime
+# classpath resource of deepseek-harness4j-sdk-core and passed to the runtime
 # subprocess via $DSH_CORDIS_CONFIG exactly like the Python SDK does.
 
 # Stdio JSON-RPC server entry; without it the agent has no SDK client.

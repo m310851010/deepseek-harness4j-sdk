@@ -79,11 +79,11 @@ public final class JsonValues {
      * @return the value as an integral JSON number, or {@code null} when it is not.
      */
     public static Integer asIntOrNull(Object value) {
-        if (value instanceof Integer integer) {
-            return integer;
+        if (value instanceof Integer) {
+            return (Integer) value;
         }
-        if (value instanceof Long longValue) {
-            return longValue.intValue();
+        if (value instanceof Long) {
+            return ((Long) value).intValue();
         }
         return null;
     }
@@ -92,13 +92,13 @@ public final class JsonValues {
      * @return the value as a string, or {@code null} when it is not a string.
      */
     public static String asStringOrNull(Object value) {
-        return value instanceof String string ? string : null;
+        return value instanceof String ? (String) value : null;
     }
 
     /**
      * @return the value as a boolean, or {@code false} when it is not a boolean.
      */
     public static boolean asBoolean(Object value) {
-        return value instanceof Boolean booleanValue && booleanValue;
+        return value instanceof Boolean && (Boolean) value;
     }
 }

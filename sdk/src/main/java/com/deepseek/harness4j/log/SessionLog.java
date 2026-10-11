@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.log;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.luben.zstd.ZstdInputStream;
@@ -51,20 +54,42 @@ import java.util.stream.Stream;
 public final class SessionLog {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {
+    private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<Map<String, Object>>() {
     };
 
     /** Immutable session metadata parsed from the first header line of a log. */
-    public record Header(
-            int version,
-            String id,
-            long createdAt,
-            String cwd,
-            String parentSession,
-            Integer seedLength,
-            String origin,
-            int delegationDepth,
-            String agentPreset) {
+    public static final class Header {
+
+        private final int version;
+        private final String id;
+        private final long createdAt;
+        private final String cwd;
+        private final String parentSession;
+        private final Integer seedLength;
+        private final String origin;
+        private final int delegationDepth;
+        private final String agentPreset;
+
+        private Header(
+                int version,
+                String id,
+                long createdAt,
+                String cwd,
+                String parentSession,
+                Integer seedLength,
+                String origin,
+                int delegationDepth,
+                String agentPreset) {
+            this.version = version;
+            this.id = id;
+            this.createdAt = createdAt;
+            this.cwd = cwd;
+            this.parentSession = parentSession;
+            this.seedLength = seedLength;
+            this.origin = origin;
+            this.delegationDepth = delegationDepth;
+            this.agentPreset = agentPreset;
+        }
 
         static Header from(Map<String, Object> line) {
             return new Header(
@@ -78,26 +103,195 @@ public final class SessionLog {
                     asInt(line, "delegationDepth", 0),
                     asString(line, "agentPreset", null));
         }
+
+        public int version() {
+            return version;
+        }
+
+        public String id() {
+            return id;
+        }
+
+        public long createdAt() {
+            return createdAt;
+        }
+
+        public String cwd() {
+            return cwd;
+        }
+
+        public String parentSession() {
+            return parentSession;
+        }
+
+        public Integer seedLength() {
+            return seedLength;
+        }
+
+        public String origin() {
+            return origin;
+        }
+
+        public int delegationDepth() {
+            return delegationDepth;
+        }
+
+        public String agentPreset() {
+            return agentPreset;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof Header)) {
+                return false;
+            }
+            Header that = (Header) o;
+            return version == that.version
+                    && createdAt == that.createdAt
+                    && delegationDepth == that.delegationDepth
+                    && Objects.equals(id, that.id)
+                    && Objects.equals(cwd, that.cwd)
+                    && Objects.equals(parentSession, that.parentSession)
+                    && Objects.equals(seedLength, that.seedLength)
+                    && Objects.equals(origin, that.origin)
+                    && Objects.equals(agentPreset, that.agentPreset);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(version, id, createdAt, cwd, parentSession, seedLength,
+                    origin, delegationDepth, agentPreset);
+        }
+
+        @Override
+        public String toString() {
+            return "Header[version=" + version
+                    + ", id=" + id
+                    + ", createdAt=" + createdAt
+                    + ", cwd=" + cwd
+                    + ", parentSession=" + parentSession
+                    + ", seedLength=" + seedLength
+                    + ", origin=" + origin
+                    + ", delegationDepth=" + delegationDepth
+                    + ", agentPreset=" + agentPreset
+                    + ']';
+        }
     }
 
     /** Search predicate over one session's event stream. */
-    public record Query(
-            String eventType,
-            String textContains,
-            Long fromTimestamp,
-            Long toTimestamp) {
+    public static final class Query {
 
-        public Query {
+        private final String eventType;
+        private final String textContains;
+        private final Long fromTimestamp;
+        private final Long toTimestamp;
+
+        public Query(
+                String eventType,
+                String textContains,
+                Long fromTimestamp,
+                Long toTimestamp) {
             if (eventType == null && textContains == null
                     && fromTimestamp == null && toTimestamp == null) {
                 throw new IllegalArgumentException(
                         "at least one filter (eventType/textContains/fromTimestamp/toTimestamp) is required");
             }
+            this.eventType = eventType;
+            this.textContains = textContains;
+            this.fromTimestamp = fromTimestamp;
+            this.toTimestamp = toTimestamp;
+        }
+
+        public String eventType() {
+            return eventType;
+        }
+
+        public String textContains() {
+            return textContains;
+        }
+
+        public Long fromTimestamp() {
+            return fromTimestamp;
+        }
+
+        public Long toTimestamp() {
+            return toTimestamp;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof Query)) {
+                return false;
+            }
+            Query that = (Query) o;
+            return Objects.equals(eventType, that.eventType)
+                    && Objects.equals(textContains, that.textContains)
+                    && Objects.equals(fromTimestamp, that.fromTimestamp)
+                    && Objects.equals(toTimestamp, that.toTimestamp);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(eventType, textContains, fromTimestamp, toTimestamp);
+        }
+
+        @Override
+        public String toString() {
+            return "Query[eventType=" + eventType
+                    + ", textContains=" + textContains
+                    + ", fromTimestamp=" + fromTimestamp
+                    + ", toTimestamp=" + toTimestamp
+                    + ']';
         }
     }
 
     /** One cross-session search hit. */
-    public record SearchHit(String sessionId, Map<String, Object> event) {
+    public static final class SearchHit {
+
+        private final String sessionId;
+        private final Map<String, Object> event;
+
+        public SearchHit(String sessionId, Map<String, Object> event) {
+            this.sessionId = sessionId;
+            this.event = event;
+        }
+
+        public String sessionId() {
+            return sessionId;
+        }
+
+        public Map<String, Object> event() {
+            return event;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof SearchHit)) {
+                return false;
+            }
+            SearchHit that = (SearchHit) o;
+            return Objects.equals(sessionId, that.sessionId)
+                    && Objects.equals(event, that.event);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(sessionId, event);
+        }
+
+        @Override
+        public String toString() {
+            return "SearchHit[sessionId=" + sessionId + ", event=" + event + ']';
+        }
     }
 
     private SessionLog() {
@@ -113,7 +307,7 @@ public final class SessionLog {
     public static List<Header> list(Path sessionRoot) {
         Objects.requireNonNull(sessionRoot, "sessionRoot");
         if (!Files.isDirectory(sessionRoot)) {
-            return List.of();
+            return Jdk8.listOf();
         }
         List<Header> headers = new ArrayList<>();
         try (Stream<Path> walk = Files.walk(sessionRoot)) {
@@ -138,7 +332,7 @@ public final class SessionLog {
      * @return the decoded events; empty when the session does not exist
      */
     public static List<Map<String, Object>> read(Path sessionRoot, String sessionId) {
-        return stream(sessionRoot, sessionId).toList();
+        return stream(sessionRoot, sessionId).collect(Collectors.toList());
     }
 
     /**
@@ -180,7 +374,7 @@ public final class SessionLog {
     public static List<Map<String, Object>> replay(Path sessionRoot, String sessionId) {
         return stream(sessionRoot, sessionId)
                 .filter(event -> REPLAY_TYPES.contains(event.get("type")))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     /**
@@ -189,7 +383,7 @@ public final class SessionLog {
     public static List<Map<String, Object>> search(Path sessionRoot, String sessionId,
                                                    Query query) {
         Objects.requireNonNull(query, "query");
-        return stream(sessionRoot, sessionId).filter(event -> matches(event, query)).toList();
+        return stream(sessionRoot, sessionId).filter(event -> matches(event, query)).collect(Collectors.toList());
     }
 
     /**
@@ -271,7 +465,7 @@ public final class SessionLog {
     // -----------------------------------------------------------------------------------
 
     /** The event types included in a {@link #replay} view. */
-    private static final List<Object> REPLAY_TYPES = List.of(
+    private static final List<Object> REPLAY_TYPES = Jdk8.listOf(
             "user/message",
             "assistant/message",
             "assistant/chunk",
@@ -287,7 +481,7 @@ public final class SessionLog {
 
     /** Decode one JSONL record into zero (ignorable) or more events, expanding packed chunk rows. */
     private static Stream<Map<String, Object>> decodeLine(String line) {
-        if (line.isBlank()) {
+        if (Jdk8.isBlank(line)) {
             return Stream.empty();
         }
         Map<String, Object> value;
@@ -328,17 +522,17 @@ public final class SessionLog {
             }
             Map<String, Object> chunk = new LinkedHashMap<>();
             switch (type) {
-                case "text-chunks" -> {
+                case "text-chunks":
                     chunk.put("type", "text-delta");
                     chunk.put("index", data.get("index"));
                     chunk.put("text", members.get(k));
-                }
-                case "reasoning-chunks" -> {
+                    break;
+                case "reasoning-chunks":
                     chunk.put("type", "reasoning-delta");
                     chunk.put("index", data.get("index"));
                     chunk.put("text", members.get(k));
-                }
-                case "tool-call-chunks" -> {
+                    break;
+                case "tool-call-chunks":
                     chunk.put("type", "tool-call-delta");
                     chunk.put("index", data.get("index"));
                     chunk.put("id", data.get("id"));
@@ -346,8 +540,9 @@ public final class SessionLog {
                         chunk.put("name", data.get("name"));
                     }
                     chunk.put("argumentsDelta", members.get(k));
-                }
-                default -> throw new IllegalStateException("unreachable: " + type);
+                    break;
+                default:
+                    throw new IllegalStateException("unreachable: " + type);
             }
             Map<String, Object> event = new LinkedHashMap<>();
             event.put("type", "assistant/chunk");
@@ -530,14 +725,14 @@ public final class SessionLog {
 
     private static int asInt(Map<String, Object> map, String key, int fallback) {
         Object value = map.get(key);
-        return value instanceof Number number ? number.intValue() : fallback;
+        return value instanceof Number ? ((Number) value).intValue() : fallback;
     }
 
     private static Integer asInteger(Map<String, Object> map, String key, Integer fallback) {
         Object value = map.get(key);
         // box explicitly: the conditional would otherwise unbox the Long/Integer fallback
-        return value instanceof Number number
-                ? Integer.valueOf(number.intValue())
+        return value instanceof Number
+                ? Integer.valueOf(((Number) value).intValue())
                 : fallback;
     }
 
@@ -546,15 +741,16 @@ public final class SessionLog {
     }
 
     private static Long asLong(Object value, Long fallback) {
-        return value instanceof Number number
-                ? Long.valueOf(number.longValue())
+        return value instanceof Number
+                ? Long.valueOf(((Number) value).longValue())
                 : fallback;
     }
 
     private static List<String> stringList(Object value) {
-        if (!(value instanceof List<?> list)) {
+        if (!(value instanceof List<?>)) {
             throw new IllegalStateException("expected a string array in chunk row, got " + value);
         }
+        List<?> list = (List<?>) value;
         List<String> out = new ArrayList<>(list.size());
         for (Object entry : list) {
             out.add(String.valueOf(entry));
@@ -563,9 +759,10 @@ public final class SessionLog {
     }
 
     private static List<Long> longList(Object value) {
-        if (!(value instanceof List<?> list)) {
+        if (!(value instanceof List<?>)) {
             throw new IllegalStateException("expected a dt array in chunk row, got " + value);
         }
+        List<?> list = (List<?>) value;
         List<Long> out = new ArrayList<>(list.size());
         for (Object entry : list) {
             out.add(((Number) entry).longValue());

@@ -195,9 +195,10 @@ public final class HarnessConfig {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof HarnessConfig that)) {
+        if (!(o instanceof HarnessConfig)) {
             return false;
         }
+        HarnessConfig that = (HarnessConfig) o;
         return Objects.equals(runtimeBin, that.runtimeBin)
                 && Objects.equals(bridgeBin, that.bridgeBin)
                 && java.util.Arrays.equals(launchArgsOverride, that.launchArgsOverride)

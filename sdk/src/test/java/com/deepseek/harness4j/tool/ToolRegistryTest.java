@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.tool;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -38,7 +40,7 @@ class ToolRegistryTest {
         List<ToolDefinition> defs = registry.listDefinitions();
         assertEquals(2, defs.size());
 
-        ToolDefinition addDef = defs.stream().filter(d -> d.name().equals("add_numbers")).findFirst().orElseThrow();
+        ToolDefinition addDef = defs.stream().filter(d -> d.name().equals("add_numbers")).findFirst().orElseThrow(() -> new java.util.NoSuchElementException("add_numbers not registered"));
         assertEquals("Add two integers together", addDef.description());
         assertEquals(2, addDef.parameters().size());
 
@@ -52,13 +54,13 @@ class ToolRegistryTest {
         ToolRegistry registry = new ToolRegistry();
         registry.register(new SampleTools());
 
-        Object result = registry.execute("add_numbers", Map.of("a", 10, "b", 25));
+        Object result = registry.execute("add_numbers", Jdk8.mapOf("a", 10, "b", 25));
         assertEquals(35, result);
 
-        Object greet = registry.execute("greet", Map.of("username", "DeepSeek", "prefix", "Hi, "));
+        Object greet = registry.execute("greet", Jdk8.mapOf("username", "DeepSeek", "prefix", "Hi, "));
         assertEquals("Hi, DeepSeek", greet);
 
-        Object greetDefault = registry.execute("greet", Map.of("username", "World"));
+        Object greetDefault = registry.execute("greet", Jdk8.mapOf("username", "World"));
         assertEquals("Hello, World", greetDefault);
     }
 }

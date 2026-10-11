@@ -2,7 +2,7 @@
 
 [English](adding-an-llm-adapter.en.md) | 中文
 
-> 本文件是上游 `docs/cookbook/adding-an-llm-adapter.md`（+`.zh.md`）的移植。LLM 适配器是**运行时侧的 TypeScript 插件**，与客户端语言无关——Java/Python SDK 调用方无需改动，只需在 `cordis.yml` 挂载并选择对应 provider/model（见 `deepseek-harness4j-使用指南.md` §十二）。
+> 本文件是上游 `docs/cookbook/adding-an-llm-adapter.md`（+`.zh.md`）的移植。LLM 适配器是**运行时侧的 TypeScript 插件**，与客户端语言无关——Java/Python SDK 调用方无需改动，只需在 `cordis.yml` 挂载并选择对应 provider/model（见 `deepseek-harness4j-sdk-使用指南.md` §十二）。
 
 如何接入新的模型提供方。参考实现：`packages/llm/llm-deepseek`（直接 HTTP，SSE 由 `eventsource-parser` 分帧）与 `packages/llm/llm-pi-ai`（包装一个 LLM 库）。先读 `packages/llm/llm/src/types.ts` 中的 `StreamChunk` 文档——它记录了这两个适配器验证过的协议约定。
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  deepseek-harness4j-spring-boot-example: runnable Spring Boot MVC application demonstrating
+  deepseek-harness4j-sdk-spring-boot-example: runnable Spring Boot MVC application demonstrating
   the starter. POST /api/harness/run runs one agent turn over a Spring MVC controller;
   Spring Cloud Config (when present) can supply the deepseek.harness.* properties.
 -->
@@ -11,12 +11,12 @@
 
   <parent>
     <groupId>com.deepseek-ai</groupId>
-    <artifactId>deepseek-harness4j</artifactId>
+    <artifactId>deepseek-harness4j-sdk</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>deepseek-harness4j-spring-boot-example</artifactId>
-  <name>deepseek-harness4j-spring-boot-example</name>
+  <artifactId>deepseek-harness4j-sdk-spring-boot-example</artifactId>
+  <name>deepseek-harness4j-sdk-spring-boot-example</name>
   <description>Runnable Spring Boot MVC example over the DeepSeek Harness Java SDK</description>
 
   <dependencyManagement>
@@ -34,7 +34,7 @@
   <dependencies>
     <dependency>
       <groupId>com.deepseek-ai</groupId>
-      <artifactId>deepseek-harness4j-spring-boot-starter</artifactId>
+      <artifactId>deepseek-harness4j-sdk-spring-boot-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

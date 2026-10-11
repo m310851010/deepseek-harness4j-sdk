@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.build;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.nio.file.Paths;
+
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -17,13 +20,11 @@ class MacOsDeploymentTargetTest {
 
     @Test
     void test_otool_parser_uses_the_newest_macho_slice() {
-        String output = """
-                  cmd LC_BUILD_VERSION
-                minos 11.0
-                  cmd LC_BUILD_VERSION
-                minos 13.5
-                """;
-        assertEquals(List.of(13, 5), MacOsDeploymentTarget.parseOtoolDeploymentTarget(output));
+        String output = "  cmd LC_BUILD_VERSION\n"
+                + "minos 11.0\n"
+                + "  cmd LC_BUILD_VERSION\n"
+                + "minos 13.5\n";
+        assertEquals(Jdk8.listOf(13, 5), MacOsDeploymentTarget.parseOtoolDeploymentTarget(output));
     }
 
     @Test
@@ -35,11 +36,11 @@ class MacOsDeploymentTargetTest {
 
     @Test
     void test_wheel_tag_rejects_a_newer_executable_target() {
-        MacOsDeploymentTarget.ensureCompatible(Path.of("runtime"), List.of(13, 5), "macosx_14_0_arm64");
+        MacOsDeploymentTarget.ensureCompatible(Paths.get("runtime"), Jdk8.listOf(13, 5), "macosx_14_0_arm64");
 
         IllegalStateException exc = assertThrows(IllegalStateException.class,
                 () -> MacOsDeploymentTarget.ensureCompatible(
-                        Path.of("spawn-helper"), List.of(14, 1), "macosx_14_0_arm64"));
+                        Paths.get("spawn-helper"), Jdk8.listOf(14, 1), "macosx_14_0_arm64"));
         assertTrue(exc.getMessage().contains("requires macOS 14.1"));
     }
 }

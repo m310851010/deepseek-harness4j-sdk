@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.build;
 
+import com.deepseek.harness4j.util.Jdk8;
+import java.util.stream.Collectors;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +38,7 @@ public final class RuntimeBuildHook {
     public static void rejectDistributionWithoutPlatform(String targetName, boolean platformSpecified) {
         if ("sdist".equals(targetName) || !platformSpecified) {
             throw new IllegalStateException(
-                    "deepseek-harness4j-runtime-bin is distribution-only; build and publish "
+                    "deepseek-harness4j-sdk-runtime-bin is distribution-only; build and publish "
                             + "platform distributions only (target=" + targetName + ")");
         }
     }
@@ -48,7 +51,7 @@ public final class RuntimeBuildHook {
      * @return the resolved platform tag
      */
     public static String resolvePlatformTag(String envOverride) {
-        return envOverride != null && !envOverride.isBlank()
+        return envOverride != null && !Jdk8.isBlank(envOverride)
                 ? envOverride
                 : PlatformManifest.hostPlatformTag();
     }
@@ -72,7 +75,7 @@ public final class RuntimeBuildHook {
                         .map(path -> path.getFileName().toString())
                         .filter(name -> name.startsWith("dsh-jsonrpc-agent-pkg-"))
                         .sorted()
-                        .toList();
+                        .collect(Collectors.toList());
             } catch (IOException error) {
                 throw new IllegalStateException("could not list runtime payload: " + runtimeDir, error);
             }

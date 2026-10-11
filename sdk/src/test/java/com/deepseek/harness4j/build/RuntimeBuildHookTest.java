@@ -1,5 +1,8 @@
 package com.deepseek.harness4j.build;
 
+import com.deepseek.harness4j.util.Jdk8;
+
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -24,6 +27,8 @@ class RuntimeBuildHookTest {
 
     @Test
     void test_host_platform_tag_resolves_from_the_manifest() {
+        Assumptions.assumeTrue(supportedBuildHost(),
+                "bundled runtime payloads are only produced for mac/linux build hosts");
         String tag = PlatformManifest.hostPlatformTag();
         assertTrue(PlatformManifest.PLATFORMS.values().stream().anyMatch(pair -> pair.get(0).equals(tag)),
                 "host tag " + tag + " must be in the platform manifest");
@@ -33,6 +38,8 @@ class RuntimeBuildHookTest {
     void test_explicit_tag_wins_over_host() {
         assertEquals("macosx_14_0_arm64",
                 RuntimeBuildHook.resolvePlatformTag("macosx_14_0_arm64"));
+        Assumptions.assumeTrue(supportedBuildHost(),
+                "host tag fallback is only exercised on mac/linux build hosts");
         assertEquals(PlatformManifest.hostPlatformTag(), RuntimeBuildHook.resolvePlatformTag(null));
         assertEquals(PlatformManifest.hostPlatformTag(), RuntimeBuildHook.resolvePlatformTag("  "));
     }
@@ -57,11 +64,11 @@ class RuntimeBuildHookTest {
         Files.createDirectories(runtimeDir);
         String executable = PlatformManifest.expectedRuntimeFiles("macosx_14_0_arm64").get(0);
         Path exe = runtimeDir.resolve(executable);
-        Files.writeString(exe, "runtime");
+        Jdk8.writeString(exe, "runtime");
         setExecutable(exe);
         if (executable.contains("-macos-")) {
             Path helper = runtimeDir.resolve(executable + "-spawn-helper");
-            Files.writeString(helper, "helper");
+            Jdk8.writeString(helper, "helper");
             setExecutable(helper);
         }
 
@@ -74,7 +81,7 @@ class RuntimeBuildHookTest {
         Path runtimeDir = tmp.resolve("runtime");
         Files.createDirectories(runtimeDir);
         Path exe = runtimeDir.resolve("dsh-jsonrpc-agent-pkg-macos-arm64");
-        Files.writeString(exe, "runtime");
+        Jdk8.writeString(exe, "runtime");
         setExecutable(exe);
 
         IllegalStateException exc = assertThrows(IllegalStateException.class,
@@ -84,10 +91,12 @@ class RuntimeBuildHookTest {
 
     @Test
     void test_payload_validation_rejects_a_non_executable_runtime() throws Exception {
+        Assumptions.assumeTrue(supportsPosixPermissions(),
+                "a non-executable file cannot be simulated without POSIX permission bits");
         Path runtimeDir = tmp.resolve("runtime");
         Files.createDirectories(runtimeDir);
         Path exe = runtimeDir.resolve("dsh-jsonrpc-agent-pkg-linux-x64");
-        Files.writeString(exe, "runtime");
+        Jdk8.writeString(exe, "runtime");
         // deliberately not executable
 
         IllegalStateException exc = assertThrows(IllegalStateException.class,
@@ -96,13 +105,28 @@ class RuntimeBuildHookTest {
     }
 
     private static void setExecutable(Path path) throws Exception {
-        Files.setPosixFilePermissions(path, EnumSet.of(
-                PosixFilePermission.OWNER_READ,
-                PosixFilePermission.OWNER_WRITE,
-                PosixFilePermission.OWNER_EXECUTE,
-                PosixFilePermission.GROUP_READ,
-                PosixFilePermission.GROUP_EXECUTE,
-                PosixFilePermission.OTHERS_READ,
-                PosixFilePermission.OTHERS_EXECUTE));
+        if (supportsPosixPermissions()) {
+            Files.setPosixFilePermissions(path, EnumSet.of(
+                    PosixFilePermission.OWNER_READ,
+                    PosixFilePermission.OWNER_WRITE,
+                    PosixFilePermission.OWNER_EXECUTE,
+                    PosixFilePermission.GROUP_READ,
+                    PosixFilePermission.GROUP_EXECUTE,
+                    PosixFilePermission.OTHERS_READ,
+                    PosixFilePermission.OTHERS_EXECUTE));
+        } else {
+            // Windows: no POSIX bits; Files.isExecutable only checks read access there
+            path.toFile().setExecutable(true);
+        }
+    }
+
+    private static boolean supportedBuildHost() {
+        String os = System.getProperty("os.name", "").toLowerCase();
+        return os.contains("mac") || os.contains("darwin") || os.contains("linux");
+    }
+
+    private static boolean supportsPosixPermissions() {
+        return java.nio.file.FileSystems.getDefault()
+                .supportedFileAttributeViews().contains("posix");
     }
 }

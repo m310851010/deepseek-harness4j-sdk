@@ -1,5 +1,7 @@
 package com.deepseek.harness4j.cordis;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.DeepSeekHarness;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -41,7 +43,7 @@ class CordisDslTest {
 
         Path tempFile = config.toTempFile();
         assertTrue(Files.exists(tempFile));
-        String read = Files.readString(tempFile);
+        String read = Jdk8.readString(tempFile);
         assertTrue(read.contains("sdk-jsonrpc-server"));
     }
 

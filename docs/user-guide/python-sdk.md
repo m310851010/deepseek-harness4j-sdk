@@ -2,13 +2,13 @@
 
 [English](python-sdk.en.md) | 中文
 
-> 本文件是上游 `docs/user/guide/python-sdk.md`（+`python-sdk.zh.md`）的 Java 移植：安装、运行检入示例、在自有程序里调用 SDK 的教程路径，全部改写为 `deepseek-harness4j`。Web UI 的等价教程见 [使用 Web UI](web-ui.md)；模型配置见 [配置模型](providers.md)。
+> 本文件是上游 `docs/user/guide/python-sdk.md`（+`python-sdk.zh.md`）的 Java 移植：安装、运行检入示例、在自有程序里调用 SDK 的教程路径，全部改写为 `deepseek-harness4j-sdk`。Web UI 的等价教程见 [使用 Web UI](web-ui.md)；模型配置见 [配置模型](providers.md)。
 
 本教程是 Web UI 的编程替代路径。它安装已发布的 Java SDK、运行一个检入的 agent 组合，并演示如何在自有程序中调用同一套 API。
 
 ## 前置条件
 
-- JDK 17 或更新
+- JDK 8 或更新
 - Maven 3.9+
 - Linux x64、Linux arm64 或 macOS 14 或更新（arm64）上的运行时载体（见 `development.md` 的"构建运行时产物"）
 - 一个 DeepSeek 兼容的 API 端点与凭据
@@ -21,7 +21,7 @@
 ```xml
 <dependency>
   <groupId>com.deepseek-ai</groupId>
-  <artifactId>deepseek-harness4j-sdk</artifactId>
+  <artifactId>deepseek-harness4j-sdk-core</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -29,14 +29,14 @@
 或 Gradle：
 
 ```groovy
-implementation 'com.deepseek-ai:deepseek-harness4j-sdk:0.0.1-SNAPSHOT'
+implementation 'com.deepseek-ai:deepseek-harness4j-sdk-core:0.0.1-SNAPSHOT'
 ```
 
 ### 从源码构建
 
 ```sh
-git clone https://github.com/geekma/deepseek-harness4j.git
-cd deepseek-harness4j
+git clone https://github.com/m310851010/deepseek-harness4j-sdk.git
+cd deepseek-harness4j-sdk
 mvn install            # 构建全部模块（sdk / spring-boot-starter / spring-boot-example）
 ```
 
@@ -60,7 +60,7 @@ export DEEPSEEK_API_KEY=sk-your-key-here
 针对隔离工作区与会话目录运行一个任务（示例入口为 `com.deepseek.harness4j.examples.MinimalAgent`，对应上游 `examples/jsonrpc-agent/minimal.py`）：
 
 ```sh
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn -q -pl sdk exec:java \
   -Dexec.mainClass=com.deepseek.harness4j.examples.MinimalAgent \
   -Dexec.args="--workspace /absolute/path/to/workspace --session-root /absolute/path/to/sessions --session-id example-001 'Inspect the repository and fix the failing tests.'"

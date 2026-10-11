@@ -1,8 +1,8 @@
-# DeepSeek Harness (`dsh`) 完整使用指南（deepseek-harness4j Java 版）
+# DeepSeek Harness (`dsh`) 完整使用指南（deepseek-harness4j-sdk Java 版）
 
-[English](deepseek-harness4j-user-guide.en.md) | 中文
+[English](deepseek-harness4j-sdk-user-guide.en.md) | 中文
 
-> 本文件是仓库 `deepseek-harness-使用指南.md`（基于 GitHub 仓库 `deepseek-ai/deepseek-harness`(master 分支) 的源码与官方文档阅读整理）的 **Java 移植**：所有 Python SDK 示例改写为 Java（`deepseek-harness4j`），Node/CLI 与 Cordis 组合（`cordis.yml`）部分保持不变——因为它们驱动的是同一套运行时。
+> 本文件是仓库 `deepseek-harness-使用指南.md`（基于 GitHub 仓库 `deepseek-ai/deepseek-harness`(master 分支) 的源码与官方文档阅读整理）的 **Java 移植**：所有 Python SDK 示例改写为 Java（`deepseek-harness4j-sdk`），Node/CLI 与 Cordis 组合（`cordis.yml`）部分保持不变——因为它们驱动的是同一套运行时。
 > 最后核对时间:2026-08-13。**注意:该项目处于开发者预览(developer preview)阶段,迭代很快,存在破坏兼容性的变更,使用前请以官方文档为准。**
 
 ---
@@ -16,7 +16,7 @@
 - 核心设计理念:**一切皆插件(Everything is a plugin)**。会话、系统提示词、工具、agent 循环、LLM 接入、bash、文件系统、子进程、Web 能力、子代理、工作流……全部都是可插拔的 Cordis 插件。
 - 底层由 __Cordis__(https://github.com/cordiverse/cordis) 驱动,其设计理念来自论文 [_A Programming Paradigm for Spatiotemporal Composability_](https://github.com/cordiverse/paper)。
 - 授权:**MIT License**。
-- 项目用 Node.js + TypeScript 编写,是 pnpm monorepo;另附带一个 Python SDK(`deepseek-harness-sdk`)。本仓库 `deepseek-harness4j` 提供对应的 **Java SDK**(逐行移植 Python SDK)。
+- 项目用 Node.js + TypeScript 编写,是 pnpm monorepo;另附带一个 Python SDK(`deepseek-harness4j-sdk`)。本仓库 `deepseek-harness4j-sdk` 提供对应的 **Java SDK**(逐行移植 Python SDK)。
 
 ### 1.2 架构特点
 
@@ -26,7 +26,7 @@
 | 核心包 | `@deepseek-ai/dsh-core`(session、system-prompt、tools、agent、agent-loop) |
 | LLM 层 | `@deepseek-ai/dsh-llm` + 适配器 `dsh-llm-deepseek`(官方直连)、`dsh-llm-pi-ai`(通用多提供方)、`dsh-llm-retry` |
 | 能力层 | shell、subprocess、terminal、fs、lsp、skill、web、compaction、subagent、workflow、todo、plan…… |
-| 客户端 | Web UI、CLI、Python SDK、Java SDK(deepseek-harness4j)、ACP(Agent Client Protocol)、JSON-RPC |
+| 客户端 | Web UI、CLI、Python SDK、Java SDK(deepseek-harness4j-sdk)、ACP(Agent Client Protocol)、JSON-RPC |
 | 数据 | 会话持久化到 JSONL 日志,SQlite 存元数据 |
 
 **核心结论:换模型、接自定义服务端,大多属于"配置"而非"改代码"。** 因为 `dsh-llm-pi-ai` 已内置 OpenAI 兼容、Anthropic 等多种协议,自建 OpenAI 兼容网关可直接通过配置文件接入。这条结论对 Java SDK 同样成立——Java 侧只是换了客户端语言,模型配置完全一致。
@@ -67,21 +67,21 @@
 
 ## 二、如何安装与使用
 
-> **本文件是 `deepseek-harness4j` Java SDK 的官方使用指南。** 第二章首先介绍 **Java SDK 的安装使用路径**（推荐主路径），其余方式（Web UI、CLI、源码运行）属于**上游配套客户端**，列在小节 2.2 供交叉参考。
+> **本文件是 `deepseek-harness4j-sdk` Java SDK 的官方使用指南。** 第二章首先介绍 **Java SDK 的安装使用路径**（推荐主路径），其余方式（Web UI、CLI、源码运行）属于**上游配套客户端**，列在小节 2.2 供交叉参考。
 
-### 2.1 方式 A:Java SDK(编程调用,deepseek-harness4j)⭐推荐
+### 2.1 方式 A:Java SDK(编程调用,deepseek-harness4j-sdk)⭐推荐
 
 #### 2.1.1 前置条件
 
-- **JDK 17+**（LTS；代码亦可跑在 21 / 25 上）
+- **JDK 8+**（基线 1.8；代码亦可构建/运行在 17 / 21 上）
 - **Maven 3.9+**
 - 一个可用的 DeepSeek Harness 运行时载体（`dsh-jsonrpc-agent`）
 
 #### 2.1.2 从源码构建 SDK
 
 ```sh
-git clone https://github.com/geekma/deepseek-harness4j.git
-cd deepseek-harness4j
+git clone https://github.com/m310851010/deepseek-harness4j-sdk.git
+cd deepseek-harness4j-sdk
 mvn install            # 构建全部模块（sdk / spring-boot-starter / spring-boot-example）
 mvn test               # 运行测试（全 reactor 116 个用例）
 ```
@@ -91,7 +91,7 @@ mvn test               # 运行测试（全 reactor 116 个用例）
 ```xml
 <dependency>
     <groupId>com.deepseek-ai</groupId>
-    <artifactId>deepseek-harness4j-sdk</artifactId>
+    <artifactId>deepseek-harness4j-sdk-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -111,7 +111,7 @@ cd deepseek-harness
 corepack enable
 pnpm install
 pnpm exec tsx scripts/build-exe-for-python-sdk.ts
-# 把生成的 dsh-jsonrpc-agent-pkg-<平台>-<arch> 放到 deepseek-harness4j 运行时目录
+# 把生成的 dsh-jsonrpc-agent-pkg-<平台>-<arch> 放到 deepseek-harness4j-sdk 运行时目录
 ```
 
 #### 2.1.5 最小 Java 示例
@@ -402,7 +402,7 @@ export function apply(ctx: Context, config: Config) {
 
 ## 五、仓库常用命令
 
-### 5.1 deepseek-harness4j（本 Java 仓库）
+### 5.1 deepseek-harness4j-sdk（本 Java 仓库）
 
 ```sh
 # 构建与测试
@@ -429,7 +429,7 @@ pnpm run demo:acp       # ACP 自动化服务器(需要 DEEPSEEK_API_KEY)
 dsh --profile headless "task"
 ```
 
-> Java 侧(deepseek-harness4j)对应命令见 `development.md`:`mvn install` / `mvn test`。
+> Java 侧(deepseek-harness4j-sdk)对应命令见 `development.md`:`mvn install` / `mvn test`。
 
 ---
 
@@ -438,9 +438,9 @@ dsh --profile headless "task"
 ### 6.1 Java SDK 快速上手（本仓库主路径）
 
 ```sh
-# 1) 前置条件：JDK 17+ / Maven 3.9+ / 运行时载体（见 2.1.4）
+# 1) 前置条件：JDK 8+ / Maven 3.8+ / 运行时载体（见 2.1.4）
 # 2) 构建 SDK
-cd deepseek-harness4j
+cd deepseek-harness4j-sdk
 mvn install
 
 # 3) 设置凭据与自定义网关（可选）
@@ -449,7 +449,7 @@ export DEEPSEEK_API_KEY=sk-xxx
 # export DSH_MODEL=your-custom-model-id
 
 # 4) 在 Java 代码里调用：
-#    - 添加 Maven 依赖 com.deepseek-ai:deepseek-harness4j-sdk
+#    - 添加 Maven 依赖 com.deepseek-ai:deepseek-harness4j-sdk-core
 #    - new DeepSeekHarness(config).run("你的任务描述")
 ```
 
@@ -492,7 +492,7 @@ npx @deepseek-ai/dsh web
 - 插件配置全量字段: `docs/config-catalog.md`
 - 写 LLM 适配器: `docs/cookbook/adding-an-llm-adapter.md`、`docs/user/develop/practice/llm-adapter.md`
 - 适配器实现参考:`packages/llm/llm-deepseek/`、`packages/llm/llm-pi-ai/`
-- Java SDK(本仓库): `deepseek-harness4j/README.md`、`deepseek-harness4j/development.md`、`deepseek-harness4j/docs/java-migration-notes.md`
+- Java SDK(本仓库): `deepseek-harness4j-sdk/README.md`、`deepseek-harness4j-sdk/development.md`、`deepseek-harness4j-sdk/docs/java-migration-notes.md`
 
 ---
 
@@ -500,7 +500,7 @@ npx @deepseek-ai/dsh web
 
 > 以下 Demo 全部基于仓库真实文件核对(`examples/jsonrpc-agent/minimal.cordis.yml`、`minimal.py`、`docs/user/guide/*`、`packages/llm/*`)。示例代码做了注释以便理解。**运行任何 Demo 前,请先准备:**
 >
-> - 一台装了 Node.js(>=22) 或 Python(>=3.10) 的机器;**Java Demo 另需 JDK 17+ 与 Maven,以及安装好的运行时载体(见 `development.md`)**;
+> - 一台装了 Node.js(>=22) 或 Python(>=3.10) 的机器;**Java Demo 另需 JDK 8+ 与 Maven,以及安装好的运行时载体(见 `development.md`)**;
 > - 一个可用的模型端点 + 密钥(DeepSeek 官方,或任意 OpenAI 兼容的自建网关);
 > - 一个"允许 agent 修改"的独立工作目录(推荐用空目录,别拿真项目试)。
 
@@ -578,7 +578,7 @@ pnpm dsh --profile headless "List all files in this repo and count lines of Type
 ### 9.1 最小三步
 
 ```sh
-# 1) 引入依赖(见 deepseek-harness4j/sdk README):Maven 坐标 com.deepseek-ai:deepseek-harness4j-sdk
+# 1) 引入依赖(见 deepseek-harness4j-sdk/sdk README):Maven 坐标 com.deepseek-ai:deepseek-harness4j-sdk-core
 # 2) 设凭据
 export DEEPSEEK_API_KEY=sk-你的密钥
 # 3) 用
@@ -1056,7 +1056,7 @@ export LOCAL_KEY=ollama   # 本地网关通常不校验,给个非空值即可
 ```
 
 ```java
-// Java SDK(deepseek-harness4j):等价于上游 Python 的 DeepSeekHarness 调用
+// Java SDK(deepseek-harness4j-sdk):等价于上游 Python 的 DeepSeekHarness 调用
 import com.deepseek.harness4j.DeepSeekHarness;
 import com.deepseek.harness4j.DeepSeekHarnessConfig;
 import com.deepseek.harness4j.RunResult;
@@ -1101,21 +1101,21 @@ ls -la ~/dsh-demo/sessions   # JSONL 会话日志
 
 ## 十五、实测验证记录(2026-08-13,真实跑通)
 
-> 本节是__在本机真实运行__得到的记录,不是示例说明。环境:macOS,Python SDK `deepseek-harness-sdk==0.1.0rc6`,通过 `uv` 装入独立 venv。
+> 本节是__在本机真实运行__得到的记录,不是示例说明。环境:macOS,Python SDK `deepseek-harness4j-sdk==0.1.0rc6`,通过 `uv` 装入独立 venv。
 > 使用的模型配置:__复用本机 Hermes 实例的模型端点__ —— 火山方舟(Volcano Ark)OpenAI 兼容端点 `https://ark.cn-beijing.volces.com/api/coding/v3`,模型 `deepseek-v4-flash-ga-260731`。即:用 `DEEPSEEK_API_KEY` + `DEEPSEEK_BASE_URL` 指向自定义端点,完全没改任何 dsh 代码——这正好验证了"自定义模型=配置而非改代码"。
 >
-> **Java 移植注**:以下记录为上游 Python SDK 的真实输出。`deepseek-harness4j` 的 Java SDK 与该 Python SDK **逐行对应**(`RunResult.finalResponse()` / `finishReason()` / `sessionId()` 与 Python 结果字段一一对应),在相同的运行时与模型配置下应得到等价结果;可用本仓库 `sdk` 的 `FakeRuntime` 测试或真实端点自行复现。
+> **Java 移植注**:以下记录为上游 Python SDK 的真实输出。`deepseek-harness4j-sdk` 的 Java SDK 与该 Python SDK **逐行对应**(`RunResult.finalResponse()` / `finishReason()` / `sessionId()` 与 Python 结果字段一一对应),在相同的运行时与模型配置下应得到等价结果;可用本仓库 `sdk` 的 `FakeRuntime` 测试或真实端点自行复现。
 
 ### 15.1 环境与安装
 
 ```sh
 # Python 3.11,用 uv 建干净 venv(避免本机 pip/conda 环境被污染)
 uv venv dshuv --python 3.11
-uv pip install --python /tmp/dshuv/bin/python deepseek-harness-sdk
-# 结果:安装 deepseek-harness-sdk==0.1.0rc6 + 同版本运行时二进制(约 50MB)
+uv pip install --python /tmp/dshuv/bin/python deepseek-harness4j-sdk
+# 结果:安装 deepseek-harness4j-sdk==0.1.0rc6 + 同版本运行时二进制(约 50MB)
 ```
 
-Java 侧:引入 `com.deepseek-ai:deepseek-harness4j-sdk` 依赖并安装运行时载体(`mvn install`,见 `development.md`)。
+Java 侧:引入 `com.deepseek-ai:deepseek-harness4j-sdk-core` 依赖并安装运行时载体(`mvn install`,见 `development.md`)。
 
 ### 15.2 第一次调用(纯对话)
 
@@ -1275,7 +1275,7 @@ Web UI + CLI + Python SDK + Java SDK + ACP + JSON-RPC + hooks,全部驱动同一
 - **复杂度更高**:框架而非开箱产品,`cordis.yml` 组合、seam 三件套、事件模型的学习曲线明显高于 Claude Code 的简单配置。
 - **预览期**:README 自述"会有破坏兼容性的变更"。
 - **DeepSeek 优先**:OpenAI/Anthropic 需走 pi-ai catalog 或自定义 provider,不如 Claude Code 绑定自家模型那么开箱即用。
-- **主链路单语言**:核心是 Node/TS,Python 只是客户端 SDK(非重实现);**Java(deepseek-harness4j)同样是客户端 SDK(逐行移植 Python SDK,非重实现)**。
+- **主链路单语言**:核心是 Node/TS,Python 只是客户端 SDK(非重实现);**Java(deepseek-harness4j-sdk)同样是客户端 SDK(逐行移植 Python SDK,非重实现)**。
 
 ---
 
@@ -1293,16 +1293,16 @@ Web UI + CLI + Python SDK + Java SDK + ACP + JSON-RPC + hooks,全部驱动同一
 | 安全 | 沙箱(bwrap/Landlock/Seatbelt)、审批/权限策略、工具超时、循环卫生守卫 |
 | 协作 | ask-user、命令(commands)、人工反馈、定时跟进(schedule) |
 | 扩展 | 一切皆插件、热更新、自修改、preset 按会话组合 |
-| 接口 | Web UI、CLI、Python SDK、Java SDK(deepseek-harness4j)、ACP、JSON-RPC、Claude Code/Codex hooks 桥接 |
+| 接口 | Web UI、CLI、Python SDK、Java SDK(deepseek-harness4j-sdk)、ACP、JSON-RPC、Claude Code/Codex hooks 桥接 |
 | 工程 | 类型图生成、快照重放测试、100% 覆盖率门禁、Agent Notes 文档 |
 
 ### 17.2 技术栈与关键依赖
 
 | 项 | 值 |
 |---|---|
-| 语言 | TypeScript(ESM,`strict:true`)、Python(客户端 SDK)、Java(客户端 SDK,deepseek-harness4j) |
-| 运行时 | Node.js `^22.19.0 \|\| >=24.0.0`(仓库 engine 字段);Python >=3.10(仅 SDK);Java 17+(仅 deepseek-harness4j) |
-| 包管理 | pnpm@11.7.0(monorepo workspaces);Maven(deepseek-harness4j) |
+| 语言 | TypeScript(ESM,`strict:true`)、Python(客户端 SDK)、Java(客户端 SDK,deepseek-harness4j-sdk) |
+| 运行时 | Node.js `^22.19.0 \|\| >=24.0.0`(仓库 engine 字段);Python >=3.10(仅 SDK);Java 8+(仅 deepseek-harness4j-sdk) |
+| 包管理 | pnpm@11.7.0(monorepo workspaces);Maven(deepseek-harness4j-sdk) |
 | 底层框架 | **Cordis**(vendored 进 `vendor/`;插件/context/事件/可逆副作用) |
 | 配置 schema | `@deepseek-ai/schemastery` |
 | 会话存储 | JSONL(zstd 压缩)+ SQLite(元数据/全文检索) |
@@ -1315,7 +1315,7 @@ Web UI + CLI + Python SDK + Java SDK + ACP + JSON-RPC + hooks,全部驱动同一
 
 - **Node**:`^22.19.0 || >=24.0.0`(跑 Web UI / CLI / 源码)。
 - **Python SDK**:Python 3.10+;支持 **Linux x64、Linux arm64、macOS 14+(arm64)**;SDK 自带打包运行时,无需系统 Node。
-- **Java SDK(deepseek-harness4j)**:JDK 17+;运行时载体平台矩阵与 Python 一致(Linux x64/arm64、macOS 14+ arm64)。
+- **Java SDK(deepseek-harness4j-sdk)**:JDK 8+;运行时载体平台矩阵与 Python 一致(Linux x64/arm64、macOS 14+ arm64)。
 - **平台矩阵**:CI 覆盖 macOS/Linux;存在 Windows 相关测试路径(`test:check:windows-wine`,仅在诊断已知 Windows 故障时跑)。
 
 ### 17.4 仓库目录结构(monorepo)
@@ -1327,8 +1327,8 @@ packages/    @deepseek-ai/dsh-<pkg> 工作区,按组:core/ api/ typert/ llm/ she
              subagent/ workflow/ todo/ plan/ preset/ guard/ extensions/ hooks/
              session/ session-query/ settings/ credentials/ identity/ acp/
              interaction/ boot/ sdk/ host/ client/ bundle/ examples/ util/
-python/      Python SDK + 打包运行时(deepseek-harness-sdk / runtime-bin)
-deepseek-harness4j/  Java SDK 移植(本仓库:sdk / sdk-runtime / spring-boot-starter / spring-boot-example / docs)
+python/      Python SDK + 打包运行时(deepseek-harness4j-sdk / runtime-bin)
+deepseek-harness4j-sdk/  Java SDK 移植(本仓库:sdk / sdk-runtime / spring-boot-starter / spring-boot-example / docs)
 native/      原生 landlock 沙箱 addon
 examples/    可运行的 cordis.yml 叶子(agent-spine + CLI/ACP/JSON-RPC 示例)
 apps/        CLI 等应用入口(apps/cli/bin.ts -> dsh)
@@ -1351,7 +1351,7 @@ scripts/     仓库门禁与生成器
 | `DSH_SESSION_ROOT` | 会话落盘根目录 |
 | `DSH_HOME` | Harness 用户目录(默认 `~/.dsh`;含 `settings.yaml`、`.credentials.yaml`) |
 | `DSH_CORDIS_CONFIG` | 注入自定义 cordis 配置(SDK 启动运行时用) |
-| `DSH_RUNTIME_MODE` | 运行时载体模式(`exe`/`node`,deepseek-harness4j 的 `RuntimeResolver` 读取) |
+| `DSH_RUNTIME_MODE` | 运行时载体模式(`exe`/`node`,deepseek-harness4j-sdk 的 `RuntimeResolver` 读取) |
 
 > 更多 provider 级字段见 `llm-deepseek`/`llm-pi-ai` README 与 `config-catalog.md`。
 
@@ -1364,7 +1364,7 @@ scripts/     仓库门禁与生成器
 - **License**:MIT(根 `LICENSE`)。
 - 第三方依赖及其许可证披露:`THIRD_PARTY_NOTICES.md`。
 - npm 包命名空间:`@deepseek-ai/dsh-*`;CLI 包 `@deepseek-ai/dsh`(bin: `dsh`)。
-- Java 包坐标:`com.deepseek-ai:deepseek-harness4j-*`(deepseek-harness4j 仓库)。
+- Java 包坐标:`com.deepseek-ai:deepseek-harness4j-sdk-*`(deepseek-harness4j-sdk 仓库)。
 - 底层 Cordis 按 vendoring 政策做源码固定(vendor/README.md 有上游 SHA 与同步流程)。
 
 ### 17.8 社区与支持
@@ -1386,13 +1386,13 @@ scripts/     仓库门禁与生成器
 
 ### 17.10 一句话定位
 
-> **dsh 是一个"一切皆插件、模型无关、可自托管、多端驱动、带强审计纪律与沙箱"的通用 Agent harness——DeepSeek 版的可组合 Claude Code,适合想自己掌控 agent 运行时、接私有/自建模型、并希望行为可复现可审计的团队。deepseek-harness4j 把其中的 Python SDK 客户端逐行移植为 Java,让 Java/Spring 技术栈也能直接嵌入这套运行时。**
+> **dsh 是一个"一切皆插件、模型无关、可自托管、多端驱动、带强审计纪律与沙箱"的通用 Agent harness——DeepSeek 版的可组合 Claude Code,适合想自己掌控 agent 运行时、接私有/自建模型、并希望行为可复现可审计的团队。deepseek-harness4j-sdk 把其中的 Python SDK 客户端逐行移植为 Java,让 Java/Spring 技术栈也能直接嵌入这套运行时。**
 
 ---
 
 ## 十八、Java 4j 专属企业级增强特性（超越 Python SDK 维度）
 
-`deepseek-harness4j` 不仅完整移植了上游 Python SDK 的所有核心协议与模型交互，更针对 Java 企业级生态实现了六大原生增强特性：
+`deepseek-harness4j-sdk` 不仅完整移植了上游 Python SDK 的所有核心协议与模型交互，更针对 Java 企业级生态实现了六大原生增强特性：
 
 ### 18.1 纯 Java 离线 SessionLog 引擎（Zstd 流式解析）
 

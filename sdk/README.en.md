@@ -2,16 +2,16 @@
 
 [中文](README.md) | English
 
-Java subprocess SDK (`deepseek-harness4j-sdk`) for driving DeepSeek Harness over JSON-RPC stdio. This is a line-by-line Java port of the upstream DeepSeek Harness Python SDK (`python/sdk`, import module `deepseek_harness`). The runtime inherits normal DeepSeek Harness environment variables such as `DEEPSEEK_BASE_URL` and `DEEPSEEK_API_KEY`, so callers can use real model endpoints directly or point those variables at a local proxy.
+Java subprocess SDK (`deepseek-harness4j-sdk-core`) for driving DeepSeek Harness over JSON-RPC stdio. This is a line-by-line Java port of the upstream DeepSeek Harness Python SDK (`python/sdk`, import module `deepseek_harness`). The runtime inherits normal DeepSeek Harness environment variables such as `DEEPSEEK_BASE_URL` and `DEEPSEEK_API_KEY`, so callers can use real model endpoints directly or point those variables at a local proxy.
 
 ## Installation
 
-Add the `deepseek-harness4j-sdk` dependency from Maven Central (Java 17+):
+Add the `deepseek-harness4j-sdk-core` dependency from Maven Central (Java 8+):
 
 ```xml
 <dependency>
   <groupId>com.deepseek-ai</groupId>
-  <artifactId>deepseek-harness4j-sdk</artifactId>
+  <artifactId>deepseek-harness4j-sdk-core</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -19,7 +19,7 @@ Add the `deepseek-harness4j-sdk` dependency from Maven Central (Java 17+):
 or Gradle:
 
 ```groovy
-implementation 'com.deepseek-ai:deepseek-harness4j-sdk:0.0.1-SNAPSHOT'
+implementation 'com.deepseek-ai:deepseek-harness4j-sdk-core:0.0.1-SNAPSHOT'
 ```
 
 Before first use, install an available runtime carrier (see the [sdk-runtime README](../sdk-runtime/README.en.md)): the production single-file `dsh-jsonrpc-agent` executable, or the dev-only `node` closure; you can also select an explicit channel via `HarnessConfig.runtimeBin` / `launchArgsOverride`. The normal entry point therefore needs no executable argument:

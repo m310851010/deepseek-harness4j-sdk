@@ -1,5 +1,7 @@
 package com.deepseek.harness4j;
 
+import com.deepseek.harness4j.util.Jdk8;
+
 import com.deepseek.harness4j.test.FakeRuntime;
 import com.deepseek.harness4j.test.TestRuntimes;
 import org.junit.jupiter.api.Test;
@@ -28,7 +30,7 @@ class SessionResumeAsyncTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "late-idle"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "late-idle"))
                 .build())) {
             first = harness.run("first turn", "main", null);
             Session session = harness.startSession("main");
@@ -46,7 +48,7 @@ class SessionResumeAsyncTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "minimal-turn"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "minimal-turn"))
                 .build())) {
             Session session = harness.startSession("async-main");
             result = session.runAsync("async turn").get(30, TimeUnit.SECONDS);
@@ -62,7 +64,7 @@ class SessionResumeAsyncTest {
         try (DeepSeekHarness harness = new DeepSeekHarness(DeepSeekHarnessConfig.builder()
                 .launchArgsOverride(TestRuntimes.fakeRuntimeCommand())
                 .cwd(tmp.toString())
-                .env(Map.of("FR_SCENARIO", "callback-subagent"))
+                .env(Jdk8.mapOf("FR_SCENARIO", "callback-subagent"))
                 .build())) {
             // the scripted subagent edges are rooted at "main"
             Session session = harness.startSession("main");
